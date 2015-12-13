@@ -1,0 +1,3 @@
+".\Objects\bluetooth_U7.obj" 
+TO ".\Objects\bluetooth_U7" 
+PRINT(".\Listings\bluetooth_U7.m51") RAMSIZE(256) 

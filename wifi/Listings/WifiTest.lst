@@ -1,0 +1,300 @@
+C51 COMPILER V9.54   WIFITEST                                                              11/30/2015 19:48:29 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE WIFITEST
+OBJECT MODULE PLACED IN .\Objects\WifiTest.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE WifiTest.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\
+                    -WifiTest.lst) TABS(2) OBJECT(.\Objects\WifiTest.obj)
+
+line level    source
+
+   1          #include "reg51.h"
+   2          #include "intrins.h"
+   3          
+   4          typedef unsigned char BYTE;
+   5          typedef unsigned int WORD;
+   6          
+   7          #define FOSC 22118400L          //系统频率
+   8          #define BAUD 115200             //串口波特率
+   9          
+  10          #define NONE_PARITY     0       //无校验
+  11          #define ODD_PARITY      1       //奇校验
+  12          #define EVEN_PARITY     2       //偶校验
+  13          #define MARK_PARITY     3       //标记校验
+  14          #define SPACE_PARITY    4       //空白校验
+  15          
+  16          #define PARITYBIT NONE_PARITY   //定义校验位
+  17          
+  18          sfr AUXR  = 0x8e;               //辅助寄存器
+  19          sfr S3CON = 0xac;               //UART3 控制寄存器
+  20          sfr S3BUF = 0xad;               //UART3 数据寄存器
+  21          sfr S4CON = 0x84;
+  22          sfr S4BUF = 0x85;
+  23          sfr T2H   = 0xd6;               //定时器2高8位
+  24          sfr T2L   = 0xd7;               //定时器2低8位
+  25          sfr IE2   = 0xaf;               //中断控制寄存器2
+  26          sfr P_SW1   = 0xA2;
+  27          sbit P36 = P3^6;
+  28          #define S3RI  0x01              //S3CON.0
+  29          #define S3TI  0x02              //S3CON.1
+  30          #define S3RB8 0x04              //S3CON.2
+  31          #define S3TB8 0x08              //S3CON.3
+  32          #define S4RI  0x01              //S4CON.0
+  33          #define S4TI  0x02              //S4CON.1
+  34          #define S4RB8 0x04              //S4CON.2
+  35          #define S4TB8 0x08              //S4CON.3
+  36          #define S1_S0 0x40              //P_SW1.6
+  37          #define S1_S1 0x80              //P_SW1.7
+  38          #define S3_S0 0x02              //P_SW2.1
+  39          #define S4_S0 0x04
+  40          sfr P_SW2   = 0xBA;             //外设功能切换寄存器2
+  41          
+  42          bit Uart1busy;
+  43          bit Uart3busy;
+  44          bit Uart4busy;
+  45          
+  46          void Uart1SendData(BYTE dat);
+  47          void Uart1SendString(char *s);
+  48          void Uart3SendData(BYTE dat);
+  49          void Uart3SendString(char *s);
+  50          void Uart4SendData(BYTE dat);
+  51          void Uart4SendString(char *s);
+  52          void Delay1000ms();
+  53          void Delay200ms();
+  54          
+C51 COMPILER V9.54   WIFITEST                                                              11/30/2015 19:48:29 PAGE 2   
+
+  55          void main()
+  56          {
+  57   1          ACC = P_SW1;
+  58   1          ACC &= ~(S1_S0 | S1_S1);    //S1_S0=0 S1_S1=0
+  59   1          P_SW1 = ACC;                //(P3.0/RxD, P3.1/TxD)
+  60   1          P_SW2 &= ~S4_S0;            //S4_S0=0 (P0.2/RxD4, P0.3/TxD4)
+  61   1      //  P_SW2 |= S4_S0;             //S4_S0=1 (P5.2/RxD4_2, P5.3/TxD4_2)    
+  62   1          SCON = 0x50;                            
+  63   1          S3CON = 0x10;
+  64   1          S4CON = 0x10;
+  65   1        
+  66   1      /*    P_SW2 &= ~S3_S0;            //S3_S0=0 (P0.0/RxD3, P0.1/TxD3)
+  67   1      //    P_SW2 |= S3_S0;             //S3_S0=1 (P5.0/RxD3_2, P5.1/TxD3_2)
+  68   1      #if (PARITYBIT == NONE_PARITY)
+  69   1          SCON = 0x50;     
+  70   1          S3CON = 0x10;               //8位可变波特率
+  71   1      
+  72   1      #elif (PARITYBIT == ODD_PARITY) || (PARITYBIT == EVEN_PARITY) || (PARITYBIT == MARK_PARITY)
+  73   1          S3CON = 0x9a;               //9位可变波特率,校验位初始为1
+  74   1      #elif (PARITYBIT == SPACE_PARITY)
+  75   1          S3CON = 0x92;               //9位可变波特率,校验位初始为0
+  76   1      #endif
+  77   1      */
+  78   1          AUXR = 0x40;               //定时器1为1T模式
+  79   1          TMOD = 0x20;                //定时器1为模式2(8位自动重载)
+  80   1          TL1 = (256 - (FOSC/32/BAUD));   //设置波特率重装值
+  81   1          TH1 = (256 - (FOSC/32/BAUD));
+  82   1          TR1 = 1;                   //定时器1开始工作
+  83   1          ES = 1;                     //使能串口中断
+  84   1          
+  85   1          T2L = (65536 - (FOSC/4/BAUD));   //设置波特率重装值
+  86   1          T2H = (65536 - (FOSC/4/BAUD))>>8;
+  87   1          AUXR = 0x54;                //T2为1T模式, 并启动定时器2
+  88   1          IE2 = 0x18;                 //使能串口3,4中断
+  89   1          EA = 1;
+  90   1      
+  91   1          
+  92   1          while(1)
+  93   1          {
+  94   2            Uart3SendString("STC15W4K32S4\r\nUart3 Test !\r\n");
+  95   2            //Uart1SendString("STC15W4K32S4\r\nUart3 Test !\r\n");
+  96   2            P36=1;
+  97   2            Delay1000ms();
+  98   2            P36=0;
+  99   2            Delay200ms();
+ 100   2          }
+ 101   1      }
+ 102          
+ 103          /*----------------------------
+ 104          UART1 中断服务程序
+ 105          -----------------------------*/
+ 106          void Uart1() interrupt 4 using 1
+ 107          {
+ 108   1          if (RI)
+ 109   1          {
+ 110   2              RI = 0;                                        
+ 111   2          }
+ 112   1          if (TI)
+ 113   1          {
+ 114   2              TI = 0;              
+ 115   2              Uart1busy = 0;            
+ 116   2          }
+C51 COMPILER V9.54   WIFITEST                                                              11/30/2015 19:48:29 PAGE 3   
+
+ 117   1      }
+ 118          /*----------------------------
+ 119          UART3 中断服务程序
+ 120          -----------------------------*/
+ 121          void Uart3() interrupt 17 using 1
+ 122          {
+ 123   1          if (S3CON & S3RI)
+ 124   1          {
+ 125   2              S3CON &= ~S3RI;         //清除S3RI位
+ 126   2              Uart4SendData(S3BUF);
+ 127   2              //Uart1SendData(S3BUF);             //P30显示串口数据
+ 128   2              //SendString("interrupt !\r\n");
+ 129   2            
+ 130   2          }
+ 131   1          if (S3CON & S3TI)
+ 132   1          {
+ 133   2              S3CON &= ~S3TI;         //清除S3TI位
+ 134   2              Uart3busy = 0;               //清忙标志
+ 135   2          }
+ 136   1      }
+ 137          /*----------------------------
+ 138          UART4 中断服务程序
+ 139          -----------------------------*/
+ 140          void Uart4() interrupt 18 using 1
+ 141          {
+ 142   1          if (S4CON & S4RI)
+ 143   1          {
+ 144   2              S4CON &= ~S4RI;         
+ 145   2              Uart1SendData(S4BUF);                
+ 146   2          }
+ 147   1          if (S4CON & S4TI)
+ 148   1          {
+ 149   2              S4CON &= ~S4TI;        
+ 150   2              Uart4busy = 0;             
+ 151   2          }
+ 152   1      }
+ 153          
+ 154          
+ 155          void Uart1SendData(BYTE dat)
+ 156          {
+ 157   1          while (Uart1busy);              
+ 158   1          ACC = dat;                 
+ 159   1          if (P)                      
+ 160   1          {
+ 161   2      #if (PARITYBIT == ODD_PARITY)
+                      TB8 = 0;                
+              #elif (PARITYBIT == EVEN_PARITY)
+                      TB8 = 1;               
+              #endif
+ 166   2          }
+ 167   1          else
+ 168   1          {
+ 169   2      #if (PARITYBIT == ODD_PARITY)
+                      TB8 = 1;                
+              #elif (PARITYBIT == EVEN_PARITY)
+                      TB8 = 0;               
+              #endif
+ 174   2          }
+ 175   1          Uart1busy = 1;
+ 176   1          SBUF = ACC;                
+ 177   1      }
+ 178          
+C51 COMPILER V9.54   WIFITEST                                                              11/30/2015 19:48:29 PAGE 4   
+
+ 179          void Uart1SendString(char *s)
+ 180          {
+ 181   1          while (*s)                 
+ 182   1          {
+ 183   2               Uart1SendData(*s++);         
+ 184   2          }
+ 185   1      }
+ 186          /*----------------------------
+ 187          发送串口数据
+ 188          ----------------------------*/
+ 189          
+ 190          void Uart3SendData(BYTE dat)
+ 191          {
+ 192   1          while (Uart3busy);          
+ 193   1          Uart3busy = 1;
+ 194   1          S3BUF = dat;               
+ 195   1      }
+ 196          
+ 197          /*----------------------------
+ 198          发送字符串
+ 199          ----------------------------*/
+ 200          
+ 201          void Uart3SendString(char *s)
+ 202          {
+ 203   1          while (*s)               
+ 204   1          {
+ 205   2              Uart3SendData(*s++);        
+ 206   2          }
+ 207   1      }
+ 208          
+ 209          /*----------------------------
+ 210          串口4发送数据
+ 211          ----------------------------*/
+ 212          void Uart4SendData(BYTE dat)
+ 213          {
+ 214   1          while (Uart4busy);                            
+ 215   1          Uart4busy = 1;
+ 216   1          S4BUF = dat;              
+ 217   1      }
+ 218          
+ 219          /*----------------------------
+ 220          串口4发送字符串
+ 221          ----------------------------*/
+ 222          void Uart4SendString(char *s)
+ 223          {
+ 224   1          while (*s)                 
+ 225   1          {
+ 226   2              Uart4SendData(*s++);         
+ 227   2          }
+ 228   1      }
+ 229          
+ 230          
+ 231          
+ 232          void Delay1000ms()    //@22.1184MHz
+ 233          {
+ 234   1        unsigned char i, j, k;
+ 235   1      
+ 236   1        _nop_();
+ 237   1        _nop_();
+ 238   1        i = 85;
+ 239   1        j = 12;
+ 240   1        k = 155;
+C51 COMPILER V9.54   WIFITEST                                                              11/30/2015 19:48:29 PAGE 5   
+
+ 241   1        do
+ 242   1        {
+ 243   2          do
+ 244   2          {
+ 245   3            while (--k);
+ 246   3          } while (--j);
+ 247   2        } while (--i);
+ 248   1      }
+ 249          
+ 250          void Delay200ms()   //@22.1184MHz
+ 251          {
+ 252   1        unsigned char i, j, k;
+ 253   1      
+ 254   1        _nop_();
+ 255   1        _nop_();
+ 256   1        i = 17;
+ 257   1        j = 208;
+ 258   1        k = 27;
+ 259   1        do
+ 260   1        {
+ 261   2          do
+ 262   2          {
+ 263   3            while (--k);
+ 264   3          } while (--j);
+ 265   2        } while (--i);
+ 266   1      }
+ 267          
+ 268          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    342    ----
+   CONSTANT SIZE    =     29    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       9
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      3    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

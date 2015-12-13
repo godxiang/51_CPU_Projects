@@ -1,0 +1,5 @@
+".\Objects\main.obj",
+".\Objects\w25q64.obj",
+".\Objects\uart.obj" 
+TO ".\Objects\flash_test" 
+PRINT(".\Listings\flash_test.m51") RAMSIZE(256) 

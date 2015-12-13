@@ -1,0 +1,338 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        11/30/2015  19:48:29  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+D:\KEIL_V5\C51\BIN\BL51.EXE .\Objects\WifiTest.obj TO .\Objects\WifiTest PRINT (.\Listings\WifiTest.m51) RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\WifiTest.obj (WIFITEST)
+  D:\KEIL_V5\C51\LIB\C51S.LIB (?C_STARTUP)
+  D:\KEIL_V5\C51\LIB\C51S.LIB (?C?CLDPTR)
+
+
+LINK MAP OF MODULE:  .\Objects\WifiTest (WIFITEST)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            REG     0008H     0008H     ABSOLUTE     "REG BANK 1"
+            DATA    0010H     0003H     UNIT         ?DT?_UART1SENDSTRING?WIFITEST
+            DATA    0013H     0003H     UNIT         ?DT?_UART4SENDSTRING?WIFITEST
+            DATA    0016H     0003H     UNIT         _DATA_GROUP_
+                    0019H     0007H                  *** GAP ***
+            BIT     0020H.0   0000H.3   UNIT         ?BI?WIFITEST
+                    0020H.3   0000H.5                *** GAP ***
+            IDATA   0021H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     001DH     UNIT         ?CO?WIFITEST
+                    0020H     0003H                  *** GAP ***
+            CODE    0023H     0003H     ABSOLUTE     
+            CODE    0026H     0045H     UNIT         ?PR?MAIN?WIFITEST
+            CODE    006BH     0019H     UNIT         ?C?LIB_CODE
+                    0084H     0007H                  *** GAP ***
+            CODE    008BH     0003H     ABSOLUTE     
+                    008EH     0005H                  *** GAP ***
+            CODE    0093H     0003H     ABSOLUTE     
+            CODE    0096H     002FH     UNIT         ?PR?UART3?WIFITEST
+            CODE    00C5H     002FH     UNIT         ?PR?UART4?WIFITEST
+            CODE    00F4H     0025H     UNIT         ?PR?_UART1SENDSTRING?WIFITEST
+            CODE    0119H     0025H     UNIT         ?PR?_UART3SENDSTRING?WIFITEST
+            CODE    013EH     0025H     UNIT         ?PR?_UART4SENDSTRING?WIFITEST
+            CODE    0163H     000FH     UNIT         ?PR?DELAY1000MS?WIFITEST
+            CODE    0172H     000FH     UNIT         ?PR?DELAY200MS?WIFITEST
+            CODE    0181H     000DH     UNIT         ?PR?UART1?WIFITEST
+            CODE    018EH     000CH     UNIT         ?C_C51STARTUP
+            CODE    019AH     0009H     UNIT         ?PR?_UART1SENDDATA?WIFITEST
+            CODE    01A3H     0008H     UNIT         ?PR?_UART3SENDDATA?WIFITEST
+            CODE    01ABH     0008H     UNIT         ?PR?_UART4SENDDATA?WIFITEST
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\WifiTest (WIFITEST)
+
+BL51 BANKED LINKER/LOCATER V6.22                                                      11/30/2015  19:48:29  PAGE 2
+
+
+
+SEGMENT                                 DATA_GROUP 
+  +--> CALLED SEGMENT                 START    LENGTH
+-----------------------------------------------------
+?PR?UART3?WIFITEST                    -----    -----
+  +--> ?PR?_UART4SENDDATA?WIFITEST
+
+*** NEW ROOT ***************************************************
+
+?PR?UART4?WIFITEST                    -----    -----
+  +--> ?PR?_UART1SENDDATA?WIFITEST
+
+*** NEW ROOT ***************************************************
+
+?C_C51STARTUP                         -----    -----
+  +--> ?PR?MAIN?WIFITEST
+
+?PR?MAIN?WIFITEST                     -----    -----
+  +--> ?CO?WIFITEST
+  +--> ?PR?_UART3SENDSTRING?WIFITEST
+  +--> ?PR?DELAY1000MS?WIFITEST
+  +--> ?PR?DELAY200MS?WIFITEST
+
+?PR?_UART3SENDSTRING?WIFITEST         0016H    0003H
+  +--> ?PR?_UART3SENDDATA?WIFITEST
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\WifiTest (WIFITEST)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        WIFITEST
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:00B0H         PUBLIC        P3
+  B:00A8H.7       PUBLIC        EA
+  D:00A2H         PUBLIC        P_SW1
+  D:00BAH         PUBLIC        P_SW2
+  C:0163H         PUBLIC        Delay1000ms
+  B:0020H.0       PUBLIC        Uart1busy
+  B:0020H.1       PUBLIC        Uart3busy
+  B:00A8H.4       PUBLIC        ES
+  B:0020H.2       PUBLIC        Uart4busy
+  B:0098H.0       PUBLIC        RI
+  B:0098H.1       PUBLIC        TI
+  C:0026H         PUBLIC        main
+  D:0099H         PUBLIC        SBUF
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  B:00B0H.6       PUBLIC        P36
+  D:00AFH         PUBLIC        IE2
+  D:008EH         PUBLIC        AUXR
+  D:00E0H         PUBLIC        ACC
+  D:008DH         PUBLIC        TH1
+  D:00D6H         PUBLIC        T2H
+  C:0181H         PUBLIC        Uart1
+BL51 BANKED LINKER/LOCATER V6.22                                                      11/30/2015  19:48:29  PAGE 3
+
+
+  B:00D0H.0       PUBLIC        P
+  C:0096H         PUBLIC        Uart3
+  D:008BH         PUBLIC        TL1
+  C:00C5H         PUBLIC        Uart4
+  D:00D7H         PUBLIC        T2L
+  B:0088H.6       PUBLIC        TR1
+  C:00F4H         PUBLIC        _Uart1SendString
+  C:019AH         PUBLIC        _Uart1SendData
+  C:0119H         PUBLIC        _Uart3SendString
+  C:013EH         PUBLIC        _Uart4SendString
+  C:01A3H         PUBLIC        _Uart3SendData
+  C:01ABH         PUBLIC        _Uart4SendData
+  D:00ADH         PUBLIC        S3BUF
+  D:0085H         PUBLIC        S4BUF
+  C:0172H         PUBLIC        Delay200ms
+  D:00ACH         PUBLIC        S3CON
+  D:0084H         PUBLIC        S4CON
+  -------         PROC          MAIN
+  C:0026H         LINE#         55
+  C:0026H         LINE#         56
+  C:0026H         LINE#         57
+  C:0028H         LINE#         58
+  C:002AH         LINE#         59
+  C:002CH         LINE#         60
+  C:002FH         LINE#         62
+  C:0032H         LINE#         63
+  C:0035H         LINE#         64
+  C:0038H         LINE#         78
+  C:003BH         LINE#         79
+  C:003EH         LINE#         80
+  C:0041H         LINE#         81
+  C:0044H         LINE#         82
+  C:0046H         LINE#         83
+  C:0048H         LINE#         85
+  C:004BH         LINE#         86
+  C:004EH         LINE#         87
+  C:0051H         LINE#         88
+  C:0054H         LINE#         89
+  C:0056H         LINE#         92
+  C:0056H         LINE#         93
+  C:0056H         LINE#         94
+  C:005FH         LINE#         96
+  C:0061H         LINE#         97
+  C:0064H         LINE#         98
+  C:0066H         LINE#         99
+  C:0069H         LINE#         100
+  -------         ENDPROC       MAIN
+  -------         PROC          UART1
+  C:0181H         LINE#         106
+  C:0181H         LINE#         108
+  C:0184H         LINE#         109
+  C:0184H         LINE#         110
+  C:0186H         LINE#         111
+  C:0186H         LINE#         112
+  C:0189H         LINE#         113
+  C:0189H         LINE#         114
+  C:018BH         LINE#         115
+BL51 BANKED LINKER/LOCATER V6.22                                                      11/30/2015  19:48:29  PAGE 4
+
+
+  C:018DH         LINE#         116
+  C:018DH         LINE#         117
+  -------         ENDPROC       UART1
+  -------         PROC          UART3
+  C:0096H         LINE#         121
+  C:00A3H         LINE#         123
+  C:00A8H         LINE#         124
+  C:00A8H         LINE#         125
+  C:00ABH         LINE#         126
+  C:00B0H         LINE#         130
+  C:00B0H         LINE#         131
+  C:00B5H         LINE#         132
+  C:00B5H         LINE#         133
+  C:00B8H         LINE#         134
+  C:00BAH         LINE#         135
+  C:00BAH         LINE#         136
+  -------         ENDPROC       UART3
+  -------         PROC          UART4
+  C:00C5H         LINE#         140
+  C:00D2H         LINE#         142
+  C:00D7H         LINE#         143
+  C:00D7H         LINE#         144
+  C:00DAH         LINE#         145
+  C:00DFH         LINE#         146
+  C:00DFH         LINE#         147
+  C:00E4H         LINE#         148
+  C:00E4H         LINE#         149
+  C:00E7H         LINE#         150
+  C:00E9H         LINE#         151
+  C:00E9H         LINE#         152
+  -------         ENDPROC       UART4
+  -------         PROC          _UART1SENDDATA
+  D:0007H         SYMBOL        dat
+  C:019AH         LINE#         155
+  C:019AH         LINE#         156
+  C:019AH         LINE#         157
+  C:019DH         LINE#         158
+  C:019EH         LINE#         159
+  C:019EH         LINE#         160
+  C:019EH         LINE#         166
+  C:019EH         LINE#         168
+  C:019EH         LINE#         174
+  C:019EH         LINE#         175
+  C:01A0H         LINE#         176
+  C:01A2H         LINE#         177
+  -------         ENDPROC       _UART1SENDDATA
+  -------         PROC          _UART1SENDSTRING
+  D:0010H         SYMBOL        s
+  C:00F4H         LINE#         179
+  C:00FAH         LINE#         180
+  C:00FAH         LINE#         181
+  C:0105H         LINE#         182
+  C:0105H         LINE#         183
+  C:0116H         LINE#         184
+  C:0118H         LINE#         185
+  -------         ENDPROC       _UART1SENDSTRING
+  -------         PROC          _UART3SENDDATA
+BL51 BANKED LINKER/LOCATER V6.22                                                      11/30/2015  19:48:29  PAGE 5
+
+
+  D:0007H         SYMBOL        dat
+  C:01A3H         LINE#         190
+  C:01A3H         LINE#         191
+  C:01A3H         LINE#         192
+  C:01A6H         LINE#         193
+  C:01A8H         LINE#         194
+  C:01AAH         LINE#         195
+  -------         ENDPROC       _UART3SENDDATA
+  -------         PROC          _UART3SENDSTRING
+  D:0016H         SYMBOL        s
+  C:0119H         LINE#         201
+  C:011FH         LINE#         202
+  C:011FH         LINE#         203
+  C:012AH         LINE#         204
+  C:012AH         LINE#         205
+  C:013BH         LINE#         206
+  C:013DH         LINE#         207
+  -------         ENDPROC       _UART3SENDSTRING
+  -------         PROC          _UART4SENDDATA
+  D:0007H         SYMBOL        dat
+  C:01ABH         LINE#         212
+  C:01ABH         LINE#         213
+  C:01ABH         LINE#         214
+  C:01AEH         LINE#         215
+  C:01B0H         LINE#         216
+  C:01B2H         LINE#         217
+  -------         ENDPROC       _UART4SENDDATA
+  -------         PROC          _UART4SENDSTRING
+  D:0013H         SYMBOL        s
+  C:013EH         LINE#         222
+  C:0144H         LINE#         223
+  C:0144H         LINE#         224
+  C:014FH         LINE#         225
+  C:014FH         LINE#         226
+  C:0160H         LINE#         227
+  C:0162H         LINE#         228
+  -------         ENDPROC       _UART4SENDSTRING
+  -------         PROC          DELAY1000MS
+  -------         DO            
+  D:0007H         SYMBOL        i
+  D:0006H         SYMBOL        j
+  D:0005H         SYMBOL        k
+  -------         ENDDO         
+  C:0163H         LINE#         232
+  C:0163H         LINE#         233
+  C:0163H         LINE#         236
+  C:0164H         LINE#         237
+  C:0165H         LINE#         238
+  C:0167H         LINE#         239
+  C:0169H         LINE#         240
+  C:016BH         LINE#         242
+  C:016BH         LINE#         244
+  C:016BH         LINE#         245
+  C:016DH         LINE#         246
+  C:016FH         LINE#         247
+  C:0171H         LINE#         248
+  -------         ENDPROC       DELAY1000MS
+BL51 BANKED LINKER/LOCATER V6.22                                                      11/30/2015  19:48:29  PAGE 6
+
+
+  -------         PROC          DELAY200MS
+  -------         DO            
+  D:0007H         SYMBOL        i
+  D:0006H         SYMBOL        j
+  D:0005H         SYMBOL        k
+  -------         ENDDO         
+  C:0172H         LINE#         250
+  C:0172H         LINE#         251
+  C:0172H         LINE#         254
+  C:0173H         LINE#         255
+  C:0174H         LINE#         256
+  C:0176H         LINE#         257
+  C:0178H         LINE#         258
+  C:017AH         LINE#         260
+  C:017AH         LINE#         262
+  C:017AH         LINE#         263
+  C:017CH         LINE#         264
+  C:017EH         LINE#         265
+  C:0180H         LINE#         266
+  -------         ENDPROC       DELAY200MS
+  -------         ENDMOD        WIFITEST
+
+  -------         MODULE        ?C?CLDPTR
+  C:006BH         PUBLIC        ?C?CLDPTR
+  -------         ENDMOD        ?C?CLDPTR
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_UART1SENDSTRING?WIFITEST
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_UART4SENDSTRING?WIFITEST
+
+Program Size: data=26.3 xdata=0 code=420
+LINK/LOCATE RUN COMPLETE.  2 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,225 @@
+C51 COMPILER V9.54   UART                                                                  11/30/2015 21:02:20 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE UART
+OBJECT MODULE PLACED IN .\Objects\uart.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE uart.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\uart
+                    -.lst) TABS(2) OBJECT(.\Objects\uart.obj)
+
+line level    source
+
+   1          #include "uart.h"
+   2          #include "stc15w4k32s4.h"
+   3          
+   4          bit Uart1busy;
+   5          bit Uart3busy;
+   6          bit Uart4busy;
+   7          void InitUart()
+   8          {
+   9   1          ACC = P_SW1;
+  10   1          ACC &= ~(S1_S0 | S1_S1);    //S1_S0=0 S1_S1=0
+  11   1          P_SW1 = ACC;                //(P3.0/RxD, P3.1/TxD)
+  12   1          P_SW2 &= ~S4_S0;            //S4_S0=0 (P0.2/RxD4, P0.3/TxD4)
+  13   1      //  P_SW2 |= S4_S0;             //S4_S0=1 (P5.2/RxD4_2, P5.3/TxD4_2)    
+  14   1          SCON = 0x50;                            
+  15   1          S3CON = 0x10;
+  16   1          S4CON = 0x10;
+  17   1        
+  18   1      /*    P_SW2 &= ~S3_S0;            //S3_S0=0 (P0.0/RxD3, P0.1/TxD3)
+  19   1      //    P_SW2 |= S3_S0;             //S3_S0=1 (P5.0/RxD3_2, P5.1/TxD3_2)
+  20   1      #if (PARITYBIT == NONE_PARITY)
+  21   1          SCON = 0x50;     
+  22   1          S3CON = 0x10;               //8位可变波特率
+  23   1      
+  24   1      #elif (PARITYBIT == ODD_PARITY) || (PARITYBIT == EVEN_PARITY) || (PARITYBIT == MARK_PARITY)
+  25   1          S3CON = 0x9a;               //9位可变波特率,校验位初始为1
+  26   1      #elif (PARITYBIT == SPACE_PARITY)
+  27   1          S3CON = 0x92;               //9位可变波特率,校验位初始为0
+  28   1      #endif
+  29   1      */
+  30   1          
+  31   1          AUXR = 0x40;               //定时器1为1T模式
+  32   1          TMOD = 0x20;                //定时器1为模式2(8位自动重载)
+  33   1          TL1 = (256 - (FOSC/32/BAUD));   //设置波特率重装值
+  34   1          TH1 = (256 - (FOSC/32/BAUD));
+  35   1          TR1 = 1;                   //定时器1开始工作
+  36   1          ES = 1;                     //使能串口中断
+  37   1          
+  38   1          T2L = (65536 - (FOSC/4/BAUD));   //设置波特率重装值
+  39   1          T2H = (65536 - (FOSC/4/BAUD))>>8;
+  40   1          AUXR = 0x54;                //T2为1T模式, 并启动定时器2
+  41   1          IE2 = 0x18;                 //使能串口3,4中断
+  42   1          EA = 1;
+  43   1        }
+  44          /*----------------------------
+  45          UART1 中断服务程序
+  46          -----------------------------*/
+  47          void Uart1() interrupt 4 using 1
+  48          {
+  49   1          if (RI)
+  50   1          {
+  51   2              RI = 0;                                        
+  52   2          }
+  53   1          if (TI)
+  54   1          {
+C51 COMPILER V9.54   UART                                                                  11/30/2015 21:02:20 PAGE 2   
+
+  55   2              TI = 0;              
+  56   2              Uart1busy = 0;            
+  57   2          }
+  58   1      }
+  59          /*----------------------------
+  60          UART3 中断服务程序
+  61          -----------------------------*/
+  62          void Uart3() interrupt 17 using 1
+  63          {
+  64   1          if (S3CON & S3RI)
+  65   1          {
+  66   2              S3CON &= ~S3RI;         //清除S3RI位
+  67   2              Uart4SendData(S3BUF);
+  68   2              //Uart1SendData(S3BUF);             //P30显示串口数据
+  69   2              //SendString("interrupt !\r\n");
+  70   2            
+  71   2          }
+  72   1          if (S3CON & S3TI)
+  73   1          {
+  74   2              S3CON &= ~S3TI;         //清除S3TI位
+  75   2              Uart3busy = 0;               //清忙标志
+  76   2          }
+  77   1      }
+  78          /*----------------------------
+  79          UART4 中断服务程序
+  80          -----------------------------*/
+  81          void Uart4() interrupt 18 using 1
+  82          {
+  83   1          if (S4CON & S4RI)
+  84   1          {
+  85   2              S4CON &= ~S4RI;         
+  86   2              Uart1SendData(S4BUF);                
+  87   2          }
+  88   1          if (S4CON & S4TI)
+  89   1          {
+  90   2              S4CON &= ~S4TI;        
+  91   2              Uart4busy = 0;             
+  92   2          }
+  93   1      }
+  94          
+  95          /*----------------------------
+  96          UART1 发送数据
+  97          -----------------------------*/
+  98          void Uart1SendData(BYTE dat)
+  99          {
+ 100   1          while (Uart1busy);              
+ 101   1          Uart1busy = 1;
+ 102   1          SBUF = dat;                
+ 103   1      }
+ 104          
+ 105          void Uart1SendString(char *s)
+ 106          {
+ 107   1          while (*s)                 
+ 108   1          {
+ 109   2               Uart1SendData(*s++);         
+ 110   2          }
+ 111   1      }
+ 112          /*----------------------------
+ 113          串口3发送数据
+ 114          ----------------------------*/
+ 115          
+ 116          void Uart3SendData(BYTE dat)
+C51 COMPILER V9.54   UART                                                                  11/30/2015 21:02:20 PAGE 3   
+
+ 117          {
+ 118   1          while (Uart3busy);          
+ 119   1          Uart3busy = 1;
+ 120   1          S3BUF = dat;               
+ 121   1      }
+ 122          
+ 123          /*----------------------------
+ 124          串口3发送字符串
+ 125          ----------------------------*/
+ 126          
+ 127          void Uart3SendString(char *s)
+ 128          {
+ 129   1          while (*s)               
+ 130   1          {
+ 131   2              Uart3SendData(*s++);        
+ 132   2          }
+ 133   1      }
+ 134          
+ 135          /*----------------------------
+ 136          串口4发送数据
+ 137          ----------------------------*/
+ 138          void Uart4SendData(BYTE dat)
+ 139          {
+ 140   1          while (Uart4busy);                            
+ 141   1          Uart4busy = 1;
+ 142   1          S4BUF = dat;              
+ 143   1      }
+ 144          
+ 145          /*----------------------------
+ 146          串口4发送字符串
+ 147          ----------------------------*/
+ 148          void Uart4SendString(char *s)
+ 149          {
+ 150   1          while (*s)                 
+ 151   1          {
+ 152   2              Uart4SendData(*s++);         
+ 153   2          }
+ 154   1      }
+ 155          
+ 156          
+ 157          
+ 158          void Delay1000ms()    //@22.1184MHz
+ 159          {
+ 160   1        unsigned char i, j, k;
+ 161   1      
+ 162   1        _nop_();
+ 163   1        _nop_();
+ 164   1        i = 85;
+ 165   1        j = 12;
+ 166   1        k = 155;
+ 167   1        do
+ 168   1        {
+ 169   2          do
+ 170   2          {
+ 171   3            while (--k);
+ 172   3          } while (--j);
+ 173   2        } while (--i);
+ 174   1      }
+ 175          
+ 176          void Delay200ms()   //@22.1184MHz
+ 177          {
+ 178   1        unsigned char i, j, k;
+C51 COMPILER V9.54   UART                                                                  11/30/2015 21:02:20 PAGE 4   
+
+ 179   1      
+ 180   1        _nop_();
+ 181   1        _nop_();
+ 182   1        i = 17;
+ 183   1        j = 208;
+ 184   1        k = 27;
+ 185   1        do
+ 186   1        {
+ 187   2          do
+ 188   2          {
+ 189   3            while (--k);
+ 190   3          } while (--j);
+ 191   2        } while (--i);
+ 192   1      }
+ 193          
+ 194          
+*** WARNING C316 IN LINE 194 OF uart.c: unterminated conditionals
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    321    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       9
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      3    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

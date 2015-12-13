@@ -1,0 +1,250 @@
+C51 COMPILER V9.54   GJ45_U8                                                               11/23/2015 17:35:49 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE GJ45_U8
+OBJECT MODULE PLACED IN GJ45_U8.OBJ
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE GJ45_U8.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1          
+   2          #include "reg51.h"
+   3          #include "intrins.h"
+   4          
+   5          typedef unsigned char BYTE;
+   6          typedef unsigned int WORD;
+   7          
+   8          #define FOSC 22118400L          //系统频率
+   9          #define BAUD 115200             //串口波特率
+  10          
+  11          #define NONE_PARITY     0       //无校验
+  12          #define ODD_PARITY      1       //奇校验
+  13          #define EVEN_PARITY     2       //偶校验
+  14          #define MARK_PARITY     3       //标记校验
+  15          #define SPACE_PARITY    4       //空白校验
+  16          
+  17          #define PARITYBIT NONE_PARITY   //定义校验位
+  18          
+  19          sfr AUXR  = 0x8e;               //辅助寄存器
+  20          sfr S3CON = 0xac;               //UART3 控制寄存器
+  21          sfr S3BUF = 0xad;               //UART3 数据寄存器
+  22          sfr T2H   = 0xd6;               //定时器2高8位
+  23          sfr T2L   = 0xd7;               //定时器2低8位
+  24          sfr IE2   = 0xaf;               //中断控制寄存器2
+  25          sfr P_SW1   = 0xA2;
+  26          sbit P36 = P3^6;
+  27          #define S3RI  0x01              //S3CON.0
+  28          #define S3TI  0x02              //S3CON.1
+  29          #define S3RB8 0x04              //S3CON.2
+  30          #define S3TB8 0x08              //S3CON.3
+  31          #define S1_S0 0x40              //P_SW1.6
+  32          #define S1_S1 0x80              //P_SW1.7
+  33          #define S3_S0 0x02              //P_SW2.1
+  34          sfr P_SW2   = 0xBA;             //外设功能切换寄存器2
+  35          
+  36          
+  37          bit busy;
+  38          bit busy0;
+  39          
+  40          void SendData(BYTE dat);
+  41          void SendString(char *s);
+  42          void Uart1SendData(BYTE dat);
+  43          void Uart1SendString(char *s);
+  44          void Delay1000ms();
+  45          void Delay200ms();
+  46          
+  47          void main()
+  48          {
+  49   1          ACC = P_SW1;
+  50   1          ACC &= ~(S1_S0 | S1_S1);    //S1_S0=0 S1_S1=0
+  51   1          P_SW1 = ACC;                //(P3.0/RxD, P3.1/TxD)
+  52   1          SCON = 0x50;
+  53   1          S3CON = 0x10;
+  54   1        
+  55   1      /*    P_SW2 &= ~S3_S0;            //S3_S0=0 (P0.0/RxD3, P0.1/TxD3)
+C51 COMPILER V9.54   GJ45_U8                                                               11/23/2015 17:35:49 PAGE 2   
+
+  56   1      //  P_SW2 |= S3_S0;             //S3_S0=1 (P5.0/RxD3_2, P5.1/TxD3_2)
+  57   1      #if (PARITYBIT == NONE_PARITY)
+  58   1          SCON = 0x50;     
+  59   1          S3CON = 0x10;               //8位可变波特率
+  60   1      
+  61   1      #elif (PARITYBIT == ODD_PARITY) || (PARITYBIT == EVEN_PARITY) || (PARITYBIT == MARK_PARITY)
+  62   1          S3CON = 0x9a;               //9位可变波特率,校验位初始为1
+  63   1      #elif (PARITYBIT == SPACE_PARITY)
+  64   1          S3CON = 0x92;               //9位可变波特率,校验位初始为0
+  65   1      #endif
+  66   1      */
+  67   1          AUXR = 0x40;               //定时器1为1T模式
+  68   1          TMOD = 0x20;                //定时器1为模式2(8位自动重载)
+  69   1          TL1 = (256 - (FOSC/32/BAUD));   //设置波特率重装值
+  70   1          TH1 = (256 - (FOSC/32/BAUD));
+  71   1          TR1 = 1;                   //定时器1开始工作
+  72   1          ES = 1;                     //使能串口中断
+  73   1          
+  74   1          T2L = (65536 - (FOSC/4/BAUD));   //设置波特率重装值
+  75   1          T2H = (65536 - (FOSC/4/BAUD))>>8;
+  76   1          AUXR = 0x54;                //T2为1T模式, 并启动定时器2
+  77   1          IE2 = 0x08;                 //使能串口3中断
+  78   1          EA = 1;
+  79   1      
+  80   1          
+  81   1          while(1)
+  82   1          {
+  83   2            SendString("STC15W4K32S4\r\nUart3 Test !\r\n");
+  84   2            //Uart1SendString("STC15W4K32S4\r\nUart3 Test !\r\n");
+  85   2            P36=1;
+  86   2            Delay1000ms();
+  87   2            P36=0;
+  88   2            Delay200ms();
+  89   2          }
+  90   1      }
+  91          
+  92          /*----------------------------
+  93          UART3 中断服务程序
+  94          -----------------------------*/
+  95          void Uart3() interrupt 17 using 1
+  96          {
+  97   1          if (S3CON & S3RI)
+  98   1          {
+  99   2              S3CON &= ~S3RI;         //清除S3RI位
+ 100   2              Uart1SendData(S3BUF);
+ 101   2              //Uart1SendData(S3BUF);             //P30显示串口数据
+ 102   2              //SendString("interrupt !\r\n");
+ 103   2            
+ 104   2          }
+ 105   1          if (S3CON & S3TI)
+ 106   1          {
+ 107   2              S3CON &= ~S3TI;         //清除S3TI位
+ 108   2              busy = 0;               //清忙标志
+ 109   2          }
+ 110   1      }
+ 111          
+ 112          /*----------------------------
+ 113          UART1 中断服务程序
+ 114          -----------------------------*/
+ 115          void Uart() interrupt 4 using 1
+ 116          {
+ 117   1          if (RI)
+C51 COMPILER V9.54   GJ45_U8                                                               11/23/2015 17:35:49 PAGE 3   
+
+ 118   1          {
+ 119   2              RI = 0;                                        
+ 120   2          }
+ 121   1          if (TI)
+ 122   1          {
+ 123   2              TI = 0;              
+ 124   2              busy0 = 0;            
+ 125   2          }
+ 126   1      }
+ 127          
+ 128          /*----------------------------
+ 129          发送串口数据
+ 130          ----------------------------*/
+ 131          
+ 132          void SendData(BYTE dat)
+ 133          {
+ 134   1          while (busy);               //等待前面的数据发送完成
+ 135   1          busy = 1;
+ 136   1          S3BUF = dat;                //写数据到UART3数据寄存器
+ 137   1      }
+ 138          
+ 139          /*----------------------------
+ 140          发送字符串
+ 141          ----------------------------*/
+ 142          
+ 143          void SendString(char *s)
+ 144          {
+ 145   1          while (*s)                  //检测字符串结束标志
+ 146   1          {
+ 147   2              SendData(*s++);         //发送当前字符
+ 148   2          }
+ 149   1      }
+ 150          
+ 151          void Uart1SendData(BYTE dat)
+ 152          {
+ 153   1          while (busy0);               //???????????
+ 154   1          ACC = dat;                  //?????P (PSW.0)
+ 155   1          if (P)                      //??P??????
+ 156   1          {
+ 157   2      #if (PARITYBIT == ODD_PARITY)
+                      TB8 = 0;                //??????0
+              #elif (PARITYBIT == EVEN_PARITY)
+                      TB8 = 1;                //??????1
+              #endif
+ 162   2          }
+ 163   1          else
+ 164   1          {
+ 165   2      #if (PARITYBIT == ODD_PARITY)
+                      TB8 = 1;                //??????1
+              #elif (PARITYBIT == EVEN_PARITY)
+                      TB8 = 0;                //??????0
+              #endif
+ 170   2          }
+ 171   1          busy0 = 1;
+ 172   1          SBUF = ACC;                 //????UART?????
+ 173   1      }
+ 174          
+ 175          void Uart1SendString(char *s)
+ 176          {
+ 177   1          while (*s)                 
+ 178   1          {
+ 179   2               Uart1SendData(*s++);         
+C51 COMPILER V9.54   GJ45_U8                                                               11/23/2015 17:35:49 PAGE 4   
+
+ 180   2          }
+ 181   1      }
+ 182          
+ 183          
+ 184          
+ 185          void Delay1000ms()    //@22.1184MHz
+ 186          {
+ 187   1        unsigned char i, j, k;
+ 188   1      
+ 189   1        _nop_();
+ 190   1        _nop_();
+ 191   1        i = 85;
+ 192   1        j = 12;
+ 193   1        k = 155;
+ 194   1        do
+ 195   1        {
+ 196   2          do
+ 197   2          {
+ 198   3            while (--k);
+ 199   3          } while (--j);
+ 200   2        } while (--i);
+ 201   1      }
+ 202          
+ 203          void Delay200ms()   //@22.1184MHz
+ 204          {
+ 205   1        unsigned char i, j, k;
+ 206   1      
+ 207   1        _nop_();
+ 208   1        _nop_();
+ 209   1        i = 17;
+ 210   1        j = 208;
+ 211   1        k = 27;
+ 212   1        do
+ 213   1        {
+ 214   2          do
+ 215   2          {
+ 216   3            while (--k);
+ 217   3          } while (--j);
+ 218   2        } while (--i);
+ 219   1      }
+ 220          
+ 221          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    244    ----
+   CONSTANT SIZE    =     29    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       6
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      2    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

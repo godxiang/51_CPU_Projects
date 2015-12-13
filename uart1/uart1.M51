@@ -1,0 +1,216 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        11/22/2015  22:41:45  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+D:\KEIL_V5\C51\BIN\BL51.EXE uart1.obj TO uart1 RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  uart1.obj (UART1)
+  D:\KEIL_V5\C51\LIB\C51S.LIB (?C_STARTUP)
+  D:\KEIL_V5\C51\LIB\C51S.LIB (?C?CLDPTR)
+
+
+LINK MAP OF MODULE:  uart1 (UART1)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0003H     UNIT         _DATA_GROUP_
+                    000BH     0015H                  *** GAP ***
+            BIT     0020H.0   0000H.1   UNIT         ?BI?UART1
+                    0020H.1   0000H.7                *** GAP ***
+            IDATA   0021H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     001DH     UNIT         ?CO?UART1
+                    0020H     0003H                  *** GAP ***
+            CODE    0023H     0003H     ABSOLUTE     
+            CODE    0026H     002CH     UNIT         ?PR?MAIN?UART1
+            CODE    0052H     0025H     UNIT         ?PR?_UART1SENDSTRING?UART1
+            CODE    0077H     0019H     UNIT         ?C?LIB_CODE
+            CODE    0090H     0018H     UNIT         ?PR?UART?UART1
+            CODE    00A8H     000FH     UNIT         ?PR?DELAY1000MS?UART1
+            CODE    00B7H     000FH     UNIT         ?PR?DELAY200MS?UART1
+            CODE    00C6H     000CH     UNIT         ?C_C51STARTUP
+            CODE    00D2H     0009H     UNIT         ?PR?_UART1SENDDATA?UART1
+
+
+
+OVERLAY MAP OF MODULE:   uart1 (UART1)
+
+
+SEGMENT                              DATA_GROUP 
+  +--> CALLED SEGMENT              START    LENGTH
+--------------------------------------------------
+?C_C51STARTUP                      -----    -----
+  +--> ?PR?MAIN?UART1
+
+?PR?MAIN?UART1                     -----    -----
+  +--> ?CO?UART1
+  +--> ?PR?_UART1SENDSTRING?UART1
+  +--> ?PR?DELAY1000MS?UART1
+  +--> ?PR?DELAY200MS?UART1
+
+BL51 BANKED LINKER/LOCATER V6.22                                                      11/22/2015  22:41:45  PAGE 2
+
+
+?PR?_UART1SENDSTRING?UART1         0008H    0003H
+  +--> ?PR?_UART1SENDDATA?UART1
+
+
+
+SYMBOL TABLE OF MODULE:  uart1 (UART1)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        UART1
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:00A0H         PUBLIC        P2
+  B:00A8H.7       PUBLIC        EA
+  D:00A2H         PUBLIC        P_SW1
+  C:00A8H         PUBLIC        Delay1000ms
+  B:00A8H.4       PUBLIC        ES
+  B:0098H.0       PUBLIC        RI
+  B:0098H.1       PUBLIC        TI
+  C:0090H         PUBLIC        Uart
+  C:0026H         PUBLIC        main
+  D:0099H         PUBLIC        SBUF
+  B:00A0H.2       PUBLIC        P22
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  D:008EH         PUBLIC        AUXR
+  B:0020H.0       PUBLIC        busy
+  D:00E0H         PUBLIC        ACC
+  B:0098H.2       PUBLIC        RB8
+  D:008DH         PUBLIC        TH1
+  B:00D0H.0       PUBLIC        P
+  D:008BH         PUBLIC        TL1
+  B:0088H.6       PUBLIC        TR1
+  C:0052H         PUBLIC        _Uart1SendString
+  C:00D2H         PUBLIC        _Uart1SendData
+  C:00B7H         PUBLIC        Delay200ms
+  -------         PROC          MAIN
+  C:0026H         LINE#         37
+  C:0026H         LINE#         38
+  C:0026H         LINE#         39
+  C:0028H         LINE#         40
+  C:002AH         LINE#         41
+  C:002CH         LINE#         54
+  C:002FH         LINE#         61
+  C:0032H         LINE#         62
+  C:0035H         LINE#         63
+  C:0038H         LINE#         64
+  C:003BH         LINE#         65
+  C:003DH         LINE#         66
+  C:003FH         LINE#         67
+  C:0041H         LINE#         69
+  C:0041H         LINE#         70
+  C:0041H         LINE#         71
+  C:004AH         LINE#         73
+  C:004DH         LINE#         74
+  C:0050H         LINE#         75
+BL51 BANKED LINKER/LOCATER V6.22                                                      11/22/2015  22:41:45  PAGE 3
+
+
+  -------         ENDPROC       MAIN
+  -------         PROC          UART
+  C:0090H         LINE#         81
+  C:0092H         LINE#         83
+  C:0095H         LINE#         84
+  C:0095H         LINE#         85
+  C:0097H         LINE#         86
+  C:009AH         LINE#         87
+  C:009EH         LINE#         88
+  C:009EH         LINE#         89
+  C:00A1H         LINE#         90
+  C:00A1H         LINE#         91
+  C:00A3H         LINE#         92
+  C:00A5H         LINE#         93
+  C:00A5H         LINE#         94
+  -------         ENDPROC       UART
+  -------         PROC          _UART1SENDDATA
+  D:0007H         SYMBOL        dat
+  C:00D2H         LINE#         99
+  C:00D2H         LINE#         100
+  C:00D2H         LINE#         101
+  C:00D5H         LINE#         102
+  C:00D6H         LINE#         103
+  C:00D6H         LINE#         104
+  C:00D6H         LINE#         110
+  C:00D6H         LINE#         112
+  C:00D6H         LINE#         118
+  C:00D6H         LINE#         119
+  C:00D8H         LINE#         120
+  C:00DAH         LINE#         121
+  -------         ENDPROC       _UART1SENDDATA
+  -------         PROC          _UART1SENDSTRING
+  D:0008H         SYMBOL        s
+  C:0052H         LINE#         126
+  C:0058H         LINE#         127
+  C:0058H         LINE#         128
+  C:0063H         LINE#         129
+  C:0063H         LINE#         130
+  C:0074H         LINE#         131
+  C:0076H         LINE#         132
+  -------         ENDPROC       _UART1SENDSTRING
+  -------         PROC          DELAY1000MS
+  -------         DO            
+  D:0007H         SYMBOL        i
+  D:0006H         SYMBOL        j
+  D:0005H         SYMBOL        k
+  -------         ENDDO         
+  C:00A8H         LINE#         134
+  C:00A8H         LINE#         135
+  C:00A8H         LINE#         138
+  C:00A9H         LINE#         139
+  C:00AAH         LINE#         140
+  C:00ACH         LINE#         141
+  C:00AEH         LINE#         142
+  C:00B0H         LINE#         144
+  C:00B0H         LINE#         146
+  C:00B0H         LINE#         147
+BL51 BANKED LINKER/LOCATER V6.22                                                      11/22/2015  22:41:45  PAGE 4
+
+
+  C:00B2H         LINE#         148
+  C:00B4H         LINE#         149
+  C:00B6H         LINE#         150
+  -------         ENDPROC       DELAY1000MS
+  -------         PROC          DELAY200MS
+  -------         DO            
+  D:0007H         SYMBOL        i
+  D:0006H         SYMBOL        j
+  D:0005H         SYMBOL        k
+  -------         ENDDO         
+  C:00B7H         LINE#         152
+  C:00B7H         LINE#         153
+  C:00B7H         LINE#         156
+  C:00B8H         LINE#         157
+  C:00B9H         LINE#         158
+  C:00BBH         LINE#         159
+  C:00BDH         LINE#         160
+  C:00BFH         LINE#         162
+  C:00BFH         LINE#         164
+  C:00BFH         LINE#         165
+  C:00C1H         LINE#         166
+  C:00C3H         LINE#         167
+  C:00C5H         LINE#         168
+  -------         ENDPROC       DELAY200MS
+  -------         ENDMOD        UART1
+
+  -------         MODULE        ?C?CLDPTR
+  C:0077H         PUBLIC        ?C?CLDPTR
+  -------         ENDMOD        ?C?CLDPTR
+
+Program Size: data=12.1 xdata=0 code=216
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)
