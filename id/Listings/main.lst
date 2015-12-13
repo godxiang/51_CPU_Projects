@@ -1,0 +1,672 @@
+C51 COMPILER V9.54   MAIN                                                                  12/20/2015 17:45:09 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE main.c LARGE OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listing
+                    -s\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include "main.h"
+   2          
+   3          
+   4          void main(void)
+   5            {
+   6   1          init_Uart();
+   7   1          IO_Init();
+   8   1          Delay2000ms();                        //µÈ´ýÉí·ÝÖ¤Ä£¿éÉÏµçÎÈ¶¨
+   9   1          P4M0 = 0;
+  10   1          P4M1 = 0;
+  11   1        
+  12   1          while(1){
+  13   2            
+  14   2            if(Uart3HaveData){
+  15   3            Delay200ms();                       //µÈ´ý´®¿Ú½ÓÊÕÊý¾ÝÍê±Ï
+  16   3            UART3_Proccess();                   //´®¿ÚÊý¾Ý´¦Àí
+  17   3            }
+  18   2          };
+  19   1          //Sent_Byte (0x0c); 
+  20   1          
+  21   1          
+  22   1          //sFLASH_EraseSector(FLASH_SectorToErase);
+  23   1          //sFLASH_ReadBuffer(TotalNumData,FLASH_ReadAddress,2);                   //ÉÏµçÎÈ¶¨ÒÔºóÏÈ¶ÁÈ¡FlashÖÐ´¢´æÊý¾ÝµÄ¸
+             -öÊý
+  24   1          //Save_IDNum_ToFlash(TestIdData);
+  25   1          //Op_IdCard();    
+  26   1          //Flash_Op();
+  27   1      }
+  28          /*****************************************/
+  29          /* ´®¿Ú1¡¢4³õÊ¼»¯                          */
+  30          /* ³ÌÐò¹¦ÄÜ£º´®¿Ú1¡¢4³õÊ¼»¯                */
+  31          /* Èë¿Ú²ÎÊý:ÎÞ                           */
+  32          /* ³ö¿Ú²ÎÊý:ÎÞ                           */
+  33          /*****************************************/
+  34          void init_Uart()
+  35            {
+  36   1          P_SW2 &= ~S4_S0;            //S4_S0=0 (P0.2/RxD4, P0.3/TxD4)
+  37   1          ACC = P_SW1;
+  38   1          ACC &= ~(S1_S0 | S1_S1);    //S1_S0=0 S1_S1=0
+  39   1          P_SW1 = ACC;                //(P3.0/RxD, P3.1/TxD)
+  40   1          SCON = 0x50;                //1010000
+  41   1          S3CON = 0x10;
+  42   1          S4CON = 0x10;               //10000
+  43   1          T2L = (65536 - (FOSC/4/BAUD));   //ÉèÖÃ²¨ÌØÂÊÖØ×°Öµ
+  44   1          T2H = (65536 - (FOSC/4/BAUD))>>8;
+  45   1          AUXR = 0x14;                //T2Îª1TÄ£Ê½, ²¢Æô¶¯¶¨Ê±Æ÷2 10100
+  46   1          AUXR |= 0x01;               //Ñ¡Ôñ¶¨Ê±Æ÷2Îª´®¿Ú1µÄ²¨ÌØÂÊ·¢ÉúÆ÷
+  47   1          ES = 1;                     //Ê¹ÄÜ´®¿Ú1ÖÐ¶Ï
+  48   1          IE2 = 0x18;                 //Ê¹ÄÜ´®¿Ú3,4ÖÐ¶Ï
+  49   1          EA = 1;
+  50   1      }
+  51            
+  52          
+  53          /*----------------------------
+C51 COMPILER V9.54   MAIN                                                                  12/20/2015 17:45:09 PAGE 2   
+
+  54          UART3 ÖÐ¶Ï·þÎñ³ÌÐò
+  55          -----------------------------*/
+  56          void Uart3_ISR() interrupt 17 using 1
+  57          {
+  58   1        EA =0;
+  59   1          if (S3CON & 0x01 )
+  60   1          {
+  61   2            if(Re_Cnt < 100)
+  62   2              S3_Re_Buffer[Re_Cnt++] = S3BUF;
+  63   2            Uart3HaveData = 1;        //±êÖ¾´®¿Ú3ÓÐÊý¾Ý½øÀ´
+  64   2              S3CON &= ~0x01;         //Çå³ýS3RIÎ»  
+  65   2          }
+  66   1          if (S3CON & 0x02)
+  67   1          {
+  68   2              S3CON &= ~0x02;         //Çå³ýS3TIÎ»
+  69   2              Uart3busy = 0;               //ÇåÃ¦±êÖ¾
+  70   2          }
+  71   1          EA = 1;
+  72   1      }
+  73          
+  74          
+  75          /*----------------------------
+  76          UART4 ÖÐ¶Ï·þÎñ³ÌÐò
+  77          -----------------------------*/
+  78          void Uart4_ISR() interrupt 18 using 1
+  79          {
+  80   1        unsigned char dat;
+  81   1        EA=0;
+  82   1            if (S4CON & S4RI)
+  83   1          {
+  84   2            dat = S4BUF;
+  85   2            if(Rece_Cnt < 1295)                                 
+  86   2            re_data_buffer[Rece_Cnt++] = dat;
+  87   2          /*if(length == 4 && Rece_Cnt < 12){                                   //·µ»Ø´íÎóÏûÏ¢  
+  88   2              //Re_Data_Buffer.Re_FindCard_Data.Failure[Rece_Cnt++]=dat;          //¼ÌÐø½ÓÊÕ4¸ö×Ö½ÚÊý¾Ý                                   
+             -  //¼ÆÊý±ê¼Ç³É¹¦¶Ô±ÈÒ»Î»ÏàÓ¦¼ÆÊý±êÇ©¼Ó1 tag[0]--Ñ°¿¨ tag[1]--Ñ¡¿¨ tag[2]--¶Á¿¨
+  89   2              testdata[Rece_Cnt++] = dat;
+  90   2          }
+  91   2            
+  92   2          else if(length == 8 && Rece_Cnt < 14){
+  93   2              Re_Data_Buffer.Re_FindCard_Data.Seccess[Rece_Cnt++]=dat;          //¼ÌÐø½ÓÊÕ8¸ö×Ö½ÚÊý¾Ý
+  94   2               if(Rece_Cnt == 13){                                              //½ÓÊÕÍê±Ï¿ªÊ¼¶Ô±ÈÊý¾Ý    
+  95   2                for(i = 6;i < 13; i++){
+  96   2                  if( ! Re_Data_Buffer.Re_FindCard_Data.Seccess[i] == Re_Data.Re_FindCard_Data.Seccess[i])
+  97   2                    OpCart_FindCart_State = 0;
+  98   2                }
+  99   2                OpCart_FindCart_State = 1;
+ 100   2              }
+ 101   2          }
+ 102   2          else if(length == 12 && Rece_Cnt < 19){
+ 103   2            Re_Data_Buffer.Re_SelectCard_Data.Seccess[Rece_Cnt++]=dat;        //¼ÌÐø½ÓÊÕ12¸ö×Ö½ÚÊý¾Ý
+ 104   2            if(Rece_Cnt == 18){                                             //½ÓÊÕÍê±Ï¿ªÊ¼¶Ô±ÈÊý¾Ý    
+ 105   2                for(i = 6;i < 18; i++){
+ 106   2                  if( ! Re_Data_Buffer.Re_SelectCard_Data.Seccess[i] == Re_Data.Re_SelectCard_Data.Seccess[i])
+ 107   2                    OpCart_SelectCart_State = 0;
+ 108   2                }
+ 109   2                OpCart_SelectCart_State = 1;
+ 110   2              }
+ 111   2          }
+ 112   2          else if(length == 1288 && Rece_Cnt < 1295){
+ 113   2            if(Rece_Cnt < 10)
+ 114   2            Re_Data_Buffer.Re_ReadCard_Data.Seccess[Rece_Cnt++]=dat;        //¼ÌÐø½ÓÊÕ3¸ö×Ö½ÚÊý¾Ý(·µ»Ø³É¹¦±êÖ¾Î»)
+C51 COMPILER V9.54   MAIN                                                                  12/20/2015 17:45:09 PAGE 3   
+
+ 115   2            if(Rece_Cnt == 9){                                              //½ÓÊÕÍê±Ï¿ªÊ¼¶Ô±ÈÊý¾Ý    
+ 116   2                for(i = 7;i < 10; i++){
+ 117   2                  if( ! Re_Data_Buffer.Re_ReadCard_Data.Seccess[i] == Re_Data.Re_ReadCard_Data.Seccess[i])
+ 118   2                    OpCart_ReadCart_State = 0;
+ 119   2                }
+ 120   2                OpCart_ReadCart_State = 1;
+ 121   2              }
+ 122   2                if(Rece_Cnt > 137  && Rece_Cnt < 167){                                                            //¼ñÆðÊý¾Ý£¬¼´½ÓÊÕÉí·ÝÖ¤ºÅÂë
+ 123   2                  Rece_Cnt++;                                                                                     //Ã¿¸ô1¸ö×Ö½ÚÈ¡Êý¾Ý
+ 124   2                  Id_Number[Rece_Cnt++] = dat;                                                                    //18Î»Éí·ÝÖ¤ºÅ±£´æÏÂÀ´
+ 125   2                }
+ 126   2          }*/
+ 127   2              S4CON &= ~S4RI;                                               //´®¿Ú½ÓÊÕÖÐ¶Ï±ê¼ÇÐèÈí¼þÇåÁã
+ 128   2          }
+ 129   1              
+ 130   1          
+ 131   1          if (S4CON & S4TI)
+ 132   1          {
+ 133   2            S4CON&= ~S4TI;
+ 134   2            Uart4busy=0;
+ 135   2          }
+ 136   1        EA=1;
+ 137   1      }
+ 138          /***********************************************
+ 139          *º¯ÊýÃû³Æ£ºUart4_Process
+ 140          *¹¦    ÄÜ£º´®¿ÚÃüÁî´¦Àíº¯Êý
+ 141          *Èë¿Ú²ÎÊý£ºÎÞ
+ 142          *·µ »Ø Öµ£ºÎÞ 
+ 143          *±¸    ×¢£ºÎÞ
+ 144          ************************************************/
+ 145          void Uart4_Process(void)  
+ 146          {
+ 147   1        unsigned int i,j;
+ 148   1        length = Hex2Int (re_data_buffer[5])*256 + Hex2Int (re_data_buffer[6]);//Ê®Áù½øÖÆ×ª»»Îª10½øÖÆ
+ 149   1        if(length == 4 &&re_data_buffer[9] == 0x80 && re_data_buffer[10] == 0x84){
+ 150   2        OpCart_FindCart_State = 0;
+ 151   2        }
+ 152   1        if(length == 4 &&re_data_buffer[9] == 0x81 && re_data_buffer[10] == 0x85){
+ 153   2        OpCart_SelectCart_State = 0;
+ 154   2        }
+ 155   1        if(length == 4 &&re_data_buffer[9] == 0x41 && re_data_buffer[10] == 0x45){
+ 156   2        OpCart_ReadCart_State = 0;
+ 157   2        }
+ 158   1        if(length == 8)
+ 159   1          OpCart_FindCart_State = 1;
+ 160   1        if(length == 12)
+ 161   1          OpCart_SelectCart_State = 1;
+ 162   1        if(length == 1288){
+ 163   2          OpCart_ReadCart_State = 1;
+ 164   2          for(j=0,i = 136;j<18,i < 171;i++,j++){                                    //È¡Éí·ÝÖ¤ºÅÂë                                                                    
+             -  
+ 165   3            Id_Number[j] = re_data_buffer[i];
+ 166   3            i++;                                                                    //¸ôÒ»Î»È¡Ò»Î»
+ 167   3          } 
+ 168   2        }
+ 169   1        Rece_Cnt = 0;                                                               //½ÓÊÕ¼ÆÊýÆ÷¹éÁã
+ 170   1      }
+ 171          /*----------------------------------------
+ 172          ´®¿Ú3´¦ÀíÉÏÎ»»úÐÅÏ¢£¨´ÓWIFIÄ£¿é£©º¯Êý
+ 173          ----------------------------------------*/
+ 174          void UART3_Proccess(void){
+ 175   1        bit Header_State;
+C51 COMPILER V9.54   MAIN                                                                  12/20/2015 17:45:09 PAGE 4   
+
+ 176   1        unsigned char i,j = 0;
+ 177   1        unsigned char CS = 0x00;
+ 178   1          if(S3_Re_Buffer[0] == 0x55 && S3_Re_Buffer[1] == 0xaa)
+ 179   1            Header_State = 1;
+ 180   1          else
+ 181   1            Header_State = 0;
+ 182   1          if(Header_State == 1){                                                //Í·Ã»ÓÐ³ö´í
+ 183   2          Re_length = Hex2Int (S3_Re_Buffer[2])*256 + Hex2Int (S3_Re_Buffer[3]);//»ñµÃdataµÄ³¤¶È£¬ÒÔ±ã¼ÆËãÐ£ÑéÂëCS
+ 184   2          for(i=4;i<10;i++){
+ 185   3              if(LocalHostNum[i] == S3_Re_Buffer[i])                            //ÅÐ¶ÏÊÇ·ñÊÇ±¾»ú±àºÅ
+ 186   3                j++;
+ 187   3            
+ 188   3          }
+ 189   2            if(j==6){                                                           //ÊÇ±¾»ú±àºÅ
+ 190   3              for (j = 10;j<Re_length + 10;j++){                                //¼ÆËãÐ£ÑéÂëCS
+ 191   4                CS+=S3_Re_Buffer[j];
+ 192   4              }
+ 193   3              if(CS == S3_Re_Buffer[10+Re_length])                              //Ð£ÑéÂëCSÊÇ·ñ³ö´í ²»³ö´íÔò½øÐÐÊý¾Ý½âÎö
+ 194   3              {
+ 195   4                Uart3SendString("the CS is\n");
+ 196   4                Uart3SendData(CS);
+ 197   4                for(j=0;j<3;j++)
+ 198   4                  {
+ 199   5                  if(MessageType[j][0] == S3_Re_Buffer[11] && MessageType[j][0] == S3_Re_Buffer[12])
+ 200   5                  MessType = j;
+ 201   5                }
+ 202   4              }
+ 203   3              else
+ 204   3                Uart3SendString("CS Error!\n");
+ 205   3            }
+ 206   2            else
+ 207   2              Uart3SendString("not localhost number!\n");
+ 208   2          }
+ 209   1          Uart3HaveData = 0;                                                      //Êý¾Ý´¦ÀíÍêÖÃ´®¿Ú3Êý¾Ý±ê¼ÇÎª0£¬µÈ´ýÏÂÒ»´ÎÊý¾Ý½øÈë
+ 210   1          Re_Cnt = 0;
+ 211   1      }
+ 212          
+ 213          /***********************************************
+ 214          *º¯ÊýÃû³Æ£ºFlash_Op
+ 215          *¹¦    ÄÜ£ºflash²Ù×÷º¯Êý
+ 216          *Èë¿Ú²ÎÊý£ºÎÞ
+ 217          *·µ »Ø Öµ£ºÎÞ 
+ 218          *±¸    ×¢£ºÎÞ
+ 219          ************************************************/
+ 220          void Flash_Op(void){
+ 221   1        unsigned int Cnt,Cnt0,ID;
+ 222   1        ID=sFLASH_ReadID();             //¶ÁÈ¡W25Q64µÄÆ÷¼þIDºÅ                                    
+ 223   1          if(ID!=sFLASH_W25Q64_ID)        //Èç¹ûIDºÅ²»Í¬
+ 224   1          {
+ 225   2            Uart1SendString("ID ERROR!");
+ 226   2            while(1); 
+ 227   2          }
+ 228   1      
+ 229   1        //Uart1SendString("Start Read Write Test!\n");
+ 230   1        //Uart1SendString("Erase!\n");
+ 231   1        //Delay_ms(100);
+ 232   1        //Ð´Ö®Ç°ÐèÏÈ²Á³ý£¬²Á³ýÒ»¸öÉÈÇø
+ 233   1        //sFLASH_EraseSector(FLASH_SectorToErase);
+ 234   1        //Uart1SendString("Write!\n");
+ 235   1        //Delay_ms(300);
+ 236   1        //Ð´ÈëÒ»Ò³µÄÊý¾Ý
+ 237   1        //sFLASH_WritePage(Id_Number,FLASH_WriteAddress,18);
+C51 COMPILER V9.54   MAIN                                                                  12/20/2015 17:45:09 PAGE 5   
+
+ 238   1        //Uart1SendString("Read!\n");
+ 239   1        Delay_ms(300);
+ 240   1        //½«¸ÃÒ³µÄÊý¾Ý¶Á
+ 241   1        sFLASH_ReadBuffer(spi_re_data_buffer,FLASH_Address,20);
+ 242   1        //±È½ÏÐ´ÈëºÍ¶ÁÈ¡µÄÊý¾ÝÊÇ·ñÒ»ÖÂ
+ 243   1        for(Cnt0=0,Cnt=2;Cnt<20,Cnt0<18;Cnt++,Cnt0++) 
+ 244   1        {
+ 245   2          //Uart1SendData(spi_re_data_buffer[Cnt]);
+ 246   2          //Èç¹ûÓÐÊý¾Ý²»Í¬
+ 247   2          if(spi_re_data_buffer[Cnt]!=Id_Number[Cnt0])
+ 248   2          {     
+ 249   3            //ToDisplayError(ERR2);//ÏÔÊ¾´íÎóÐÅÏ¢
+ 250   3            //Uart1SendString("Read Error!");
+ 251   3            while(1);     
+ 252   3          } 
+ 253   2          
+ 254   2        } 
+ 255   1        if(Cnt == 0x0014){                              //Êý¾ÝÃ»ÓÐ´í
+ 256   2        P43 = 0;
+ 257   2        P44 = 0;
+ 258   2        Delay2000ms();
+ 259   2        P43 = 1;
+ 260   2        P44 = 1;
+ 261   2        }
+ 262   1          //Uart1SendString("Success!");
+ 263   1          //while(1);
+ 264   1          //Uart4_Process();
+ 265   1        
+ 266   1      }
+ 267          
+ 268          
+ 269          /***********************************************
+ 270          *º¯ÊýÃû³Æ£ºSave_IDNum_ToFlash
+ 271          *¹¦    ÄÜ£º½«ÉÏÎ»»ú·¢À´µÄÊý¾ÝÓÐÐòµØ·Å½øFlash´¢´æÆ÷ÖÐ
+ 272          *Èë¿Ú²ÎÊý1£ºData 20Î»£¨2Î»ÐòºÅ  18Î»Éí·ÝÖ¤ºÅ£©
+ 273          *·µ »Ø Öµ£ºÎÞ 
+ 274          *±¸    ×¢£ºÎÞ
+ 275          ************************************************/
+ 276          void Save_IDNum_ToFlash(unsigned char * Data){
+ 277   1        
+ 278   1      
+ 279   1        TotalNumData[0] = (unsigned char)(TotalNum>>8);                       //TotalNumµÄ¸ß8Î»
+ 280   1        TotalNumData[1] = (unsigned char)TotalNum;                            //TotalNumµÄµÍ8Î»
+ 281   1        sFLASH_WritePage(TotalNumData,FLASH_WriteAddress,2);                  //±£´æÒ»ÏÂÊý¾ÝµÄ¸öÊý  ÒÔ±ãÏÂ´ÎÐ´²Ù×÷×·¼Ó  ÏÂ
+             -´ÎÐ´²Ù×÷ÏÈ¶ÁÈ¡Õâ¸öÊý È»ºó¶¨Î»Ð´µÄµØÖ·
+ 282   1        TotalNum = Hex2Int (TotalNumData[0])*256 + Hex2Int (TotalNumData[1]); //Ê®Áù½øÖÆ×ª»»Îª10½øÖÆ
+ 283   1        FLASH_Address = (unsigned long int)(TotalNum*20);
+ 284   1        FLASH_Address+=2;                                                     //Ö¸ÕëÓÒÒÆ2¸ö×Ö½Ú
+ 285   1        sFLASH_WritePage(Data,FLASH_Address,20);
+ 286   1        TotalNum++;
+ 287   1        
+ 288   1      }
+ 289          /***********************************************
+ 290          *º¯ÊýÃû³Æ£ºOp_IdCard
+ 291          *¹¦    ÄÜ£ºÉí·ÝÖ¤Ä£¿é²Ù×÷º¯Êý
+ 292          *Èë¿Ú²ÎÊý£ºÎÞ
+ 293          *·µ »Ø Öµ£ºÎÞ 
+ 294          *±¸    ×¢£ºÎÞ
+ 295          ************************************************/
+ 296          void Op_IdCard(void){
+ 297   1        unsigned int n,Cnt;
+ 298   1        while(1){                                               //²»¶ÏÑ­»·µÈ´ý·Å¿¨
+C51 COMPILER V9.54   MAIN                                                                  12/20/2015 17:45:09 PAGE 6   
+
+ 299   2          while(!OpCart_FindCart_State){                        //Ò»Ö±µÈ´ýÑ°¿¨³É¹¦
+ 300   3            for (n=0;n<10;n++){
+ 301   4                Uart4SendData(FIND_CARD[n]);  
+ 302   4              }
+ 303   3                  //Uart4_Process();
+ 304   3              Delay200ms();     //µÈ´ý½ÓÊÕÊý¾Ý
+ 305   3              Uart4_Process();
+ 306   3            }
+ 307   2        if(OpCart_FindCart_State == 1){
+ 308   3          Cnt = 0;
+ 309   3          while(!OpCart_SelectCart_State && Cnt < 10){                      //Ò»Ö±µÈ´ýÑ¡¿¨³É¹¦,×î¶àÖØÊÔ10´Î ±ÜÃâÑ°¿¨³É¹¦ºóÒÆ
+             -³ýÁË¿¨ ¶øµ¼ÖÂËÀÑ­»·
+ 310   4            for (n=0;n<10;n++){
+ 311   5              Uart4SendData(SELECT_CARD[n]);  
+ 312   5            }
+ 313   4                //Uart4_Process();  
+ 314   4            Delay200ms();       //µÈ´ý½ÓÊÕÊý¾Ý
+ 315   4            Uart4_Process();
+ 316   4            Cnt++;
+ 317   4          }
+ 318   3        }
+ 319   2        if(OpCart_FindCart_State == 1 && OpCart_SelectCart_State == 1){
+ 320   3          Cnt = 0;
+ 321   3          while(!OpCart_ReadCart_State && Cnt < 3){                       //Ò»Ö±µÈ´ý¶Á¿¨³É¹¦
+ 322   4            for (n=0;n<10;n++){
+ 323   5              Uart4SendData(READ_CARD[n]);  
+ 324   5            }
+ 325   4            Delay2000ms();                                      //µÈ´ý½ÓÊÕÊý¾Ý£¬ÕâÀïÄ£¿é·µ»ØÊý¾ÝÑÓ³Ù¸ßÐèÒªµÈ´ýµÄÊ±¼ä³¤Ò»Ð©¡£
+ 326   4            Uart4_Process();
+ 327   4            Cnt++;
+ 328   4          }
+ 329   3        if(Cnt == 1)
+ 330   3        Flash_Op();
+ 331   3        }
+ 332   2          OpCart_FindCart_State = 0;                            //¶ÁÈ¡Ò»ÕÅ¿¨ºóÖØÐÂ³õÊ¼»¯
+ 333   2          OpCart_SelectCart_State = 0;
+ 334   2          OpCart_ReadCart_State = 0;
+ 335   2        }
+ 336   1      }
+ 337          /*----------------------------
+ 338          ´®¿Ú4·¢ËÍÊý¾Ý
+ 339          ----------------------------*/
+ 340          void Uart4SendData(unsigned char Udat)
+ 341          {
+ 342   1        while(Uart4busy);
+ 343   1        ACC = Udat;
+ 344   1        Uart4busy=1;
+ 345   1        S4BUF = ACC;
+ 346   1      }
+ 347          
+ 348          
+ 349          void Uart4SendString(char *s)
+ 350          {
+ 351   1          while (*s)                 
+ 352   1          {
+ 353   2               Uart4SendData(*s++);         
+ 354   2          }
+ 355   1      }
+ 356          
+ 357          /*----------------------------
+ 358          UART ÖÐ¶Ï·þÎñ³ÌÐò
+ 359          -----------------------------*/
+C51 COMPILER V9.54   MAIN                                                                  12/20/2015 17:45:09 PAGE 7   
+
+ 360          void Uart1_ISR() interrupt 4 using 1
+ 361          {
+ 362   1        EA=0;
+ 363   1          if (RI)
+ 364   1          {
+ 365   2              RI = 0;                 //Çå³ýRIÎ»
+ 366   2          }
+ 367   1          if (TI)
+ 368   1          {
+ 369   2              TI = 0;                 //Çå³ýTIÎ»
+ 370   2              Uart1busy = 0;               //ÇåÃ¦±êÖ¾
+ 371   2          }
+ 372   1        EA=1;
+ 373   1      }
+ 374          
+ 375          /*----------------------------
+ 376          ·¢ËÍ´®¿ÚÊý¾Ý
+ 377          ----------------------------*/
+ 378          void Uart1SendData(unsigned char dat)
+ 379          {
+ 380   1          while (Uart1busy);               //µÈ´ýÇ°ÃæµÄÊý¾Ý·¢ËÍÍê³É
+ 381   1          Uart1busy = 1;
+ 382   1          SBUF = dat;                 //Ð´Êý¾Ýµ½UARTÊý¾Ý¼Ä´æÆ÷
+ 383   1      }
+ 384          
+ 385          /*----------------------------
+ 386          ·¢ËÍ×Ö·û´®
+ 387          ----------------------------*/
+ 388          void Uart1SendString(char *s)
+ 389          {
+ 390   1          while (*s)                  //¼ì²â×Ö·û´®½áÊø±êÖ¾
+ 391   1          {
+ 392   2              Uart1SendData(*s++);         //·¢ËÍµ±Ç°×Ö·û
+ 393   2          }
+ 394   1      }
+ 395          /*----------------------------
+ 396          ´®¿Ú3·¢ËÍ´®¿ÚÊý¾Ý
+ 397          ----------------------------*/
+ 398          
+ 399          void Uart3SendData( unsigned char dat )
+ 400          {
+ 401   1          while (Uart3busy);          
+ 402   1          Uart3busy = 1;
+ 403   1          S3BUF = dat;               
+ 404   1      }
+ 405          
+ 406          /*----------------------------
+ 407          ´®¿Ú3·¢ËÍ×Ö·û´®
+ 408          ----------------------------*/
+ 409          
+ 410          void Uart3SendString(char *s)
+ 411          {
+ 412   1          while (*s)               
+ 413   1          {
+ 414   2              Uart3SendData(*s++);        
+ 415   2          }
+ 416   1      }
+ 417          
+ 418          
+ 419          /***********************************************
+ 420          º¯ÊýÃû³Æ£ºIO_Init
+ 421          ¹¦    ÄÜ£ºµ¥Æ¬»úIO¶Ë¿ÚÄ£Ê½³õÊ¼»¯
+C51 COMPILER V9.54   MAIN                                                                  12/20/2015 17:45:09 PAGE 8   
+
+ 422          Èë¿Ú²ÎÊý£ºÎÞ
+ 423          ·µ »Ø Öµ£ºÎÞ  
+ 424          ±¸    ×¢£ºSTC15W4K32S4ÏµÁÐA°æµ¥Æ¬»ú²¿·Ö¶Ë¿Ú¸´Î»ºó
+ 425                    ²»ÊÇ×¼Ë«Ïò¿Ú,ÐèÒªÉèÖÃ²ÅÄÜÕý³£Ê¹ÓÃ
+ 426          ************************************************/
+ 427          void IO_Init(void)
+ 428          {
+ 429   1      
+ 430   1        //½«P04 P05 P06 P07ÉèÖÃÎª¿ªÂ©¿Ú
+ 431   1        //ÒòÎªµ¥Æ¬»úÎª5V¶Ë¿Ú£¬W25Q64Îª3.3V¶Ë¿Ú£¬ÎªÁËÊµÏÖµçÆ½Æ¥Åä
+ 432   1        //½«µ¥Æ¬»úÉèÖÃÎª¿ªÂ©½á¹¹£¬ÓÉÍâ²¿ÉÏÀ­µ½3.3V¡£
+ 433   1        
+ 434   1         P0M1 |= (1<<4) | (1<<5) | (1<<6) | (1<<7) ;  
+ 435   1         P0M0 |= (1<<4) | (1<<5) | (1<<6) | (1<<7) ;
+ 436   1        //·ÖÎö
+ 437   1        //  1<<0µÈ¼ÛÓÚ0x01 ¼´ 0000 0001
+ 438   1        //  1<<1µÈ¼ÛÓÚ0x02 ¼´ 0000 0010
+ 439   1        //  1<<2µÈ¼ÛÓÚ0x04 ¼´ 0000 0100
+ 440   1        //  1<<3µÈ¼ÛÓÚ0x08 ¼´ 0000 1000
+ 441   1        //  ÒÔ´ËÀàÍÆ1<<n ¼´µÚnÎ»Îª1£¬ÆäÓàÎ»ÊÇ0
+ 442   1      
+ 443   1        //  x |=(1<<n)  ¼´¶ÔxÖ´ÐÐ°´Î»È¡»ò 
+ 444   1        //  ¼´xÖÐµÄµÚnÎ»ÖÃÎª1£¬²»¸Ä±äÆäËûÎ»×´Ì¬  
+ 445   1        
+ 446   1        //  y &=~(1<<n)  ¼´½«1<<n°´Î»È¡·´£¬È»ºó¶Ôy°´Î»È¡Óë 
+ 447   1        //  ¼´yÖÐµÄµÚnÎ»ÖÃÎª0£¬²»¸Ä±äÆäËûÎ»×´Ì¬  
+ 448   1         P2M0 = 0x30;       //00110000
+ 449   1         P2M1 = 0xc0;       //11000000      Éè¶¨P2.0 P2.1 P2.2 P2.3 Îª¸ß×èÊäÈë P2.4 P2.5ÎªÊä³ö  P2.6 P2.7Îª¸ß×èÊäÈë
+ 450   1         P1M0 = 0x20;       //00000100
+ 451   1         P1M1 = 0x10;       //00001000      Éè¶¨P1.2ÎªÊä³ö,Éè¶¨P1.3Îª¸ß×èÊäÈë
+ 452   1         
+ 453   1         
+ 454   1        //P10 P14¸´Î»ºóÎªÇ¿ÍÆÍìÊä³ö¡¢Ç¿ÉÏÀ­£¬
+ 455   1        //·ÀÖ¹²»µ±²Ù×÷µ¼ÖÂ¶Ë¿ÚËð»µ£¬³õÊ¼»¯Îª×¼Ë«Ïò¿Ú 
+ 456   1        //½«P10 P14ÉèÖÃÎª×¼Ë«Ïò¿Ú
+ 457   1        //P1M1 &=~( (1<<0) | (1<<4) );  
+ 458   1        //P1M0 &=~( (1<<0) | (1<<4) );
+ 459   1        
+ 460   1      }                             
+ 461          /***************************************************************/
+ 462          /*º¯ÊýÃû³Æ£ºvoid Sent_Byte(unsigned char Data0)                */
+ 463          /*º¯Êý¹¦ÄÜ£º·¢ËÍÒ»¸ö×Ö½ÚµÄµÍ4Î»                                */
+ 464          /*Èë¿Ú²ÎÊý£ºÎÞ                                                 */
+ 465          /*³ö¿Ú²ÎÊý£ºÎÞ                                                 */
+ 466          /*·¢ËÍÊý¾ÝÁ÷³Ì¢Ù Ò»·½µ¥Æ¬»ú¼ì²é8Î»¶Ë¿Ú×´Ì¬ÐÅºÅCHKREQ £¬ÒÔÅÐ¶Ï¶Ô·½ÊÇ·ñÒÑÌá ³ö·¢ËÍÊý¾ÝµÄÉêÇë¡£
+ 467                        ¢Ú Èç¹û¶Ô·½Ìá³öÉêÇëÔòµÈ´ý£¬·ñÔòÌá³ö·¢ËÍÊý¾ÝÉêÇë£¬²¢ÖÃREQÓÐÐ§¡£ 
+ 468                  ¢Û ÔÙ´Î¼ì²é8Î»¶Ë¿Ú×´Ì¬ÐÅºÅCHKREQÅÐ¶Ï¶Ô·½ÊÇ·ñÌá³ö·¢ËÍÊý¾ÝµÄÉêÇë¡£
+ 469                  ¢Ü Èç¹û¶Ô·½Ìá³öÉêÇëÔò·¢Éú³åÍ»£¬Çå³þREQ²¢ÑÓÊ±£¬È»ºóÖ´ÐÐµÚÒ»²½¡£
+ 470                  ¢Ý ½«Êý¾ÝËÍ8Î»¶Ë¿Ú£¬ÔÙÉè¶¨STBÓÐÐ§, Ê¹¶Ô·½½øÈëÖÐ¶ÏÒÔ±ãÈ¡×ßÊý¾Ý¡£
+ 471                  ¢Þ ¼ì²éCHK£¬µÈ´ý¶Ô·½µ¥Æ¬»úÈ¡×ßÊý¾Ý¡£
+ 472                  ¢ß ¼ì²éÊý¾ÝÊÇ·ñ·¢ ËÍÍê£¬Èç¹ûÃ»ÓÐÔò¼ÌÐøÖ´ÐÐ²½Öè5½øÐÐ·¢ËÍ¡£
+ 473                  ¢à ³·ÏúREQÐÅºÅ£¬ÊÍ·Å8Î»¶Ë¿Ú¡£
+ 474                  ¢á Êý¾Ý·¢ËÍ Íê±ÏÍË³öÁ÷³Ì¡£
+ 475          Êý¾Ý½ÓÊÕÁ÷³Ì£º¢Ù½øÈëÖÐ¶Ï·þÎñÁ÷³Ì¡£
+ 476                        ¢Ú´Ó8Î»¶Ë¿Ú¶ÁÈ¡Êý¾Ý¡£
+ 477                  ¢ÛÉèÖÃACKÐÅºÅÓÐ Ð§£¬±íÊ¾Êý¾ÝÒÑ³É¹¦¶ÁÈ¡¡£
+ 478                  ¢ÜÍË³öÖÐ¶Ï·þÎñÁ÷³Ì¡£
+ 479          /*           P2>----------------------P2                     */
+ 480          /*           STB>---------------------INT                    */
+ 481          /*           REQ>---------------------CHKREQ                 */
+ 482          /*           INT<---------------------STB                    */
+ 483          /*           CHKREQ<---------------------REQ                 */
+C51 COMPILER V9.54   MAIN                                                                  12/20/2015 17:45:09 PAGE 9   
+
+ 484          /*           ACK--------------------->CHKACK               */
+ 485          /*           CHKACK<---------------------ACK               */
+ 486          /*************************************************************/
+ 487          unsigned char  Sent_Byte(unsigned char Data0)/*·¢ËÍÒ»¸ö×Ö½ÚµÄµÍ4Î»*/
+ 488            {/*Ê×ÏÈ¼ì²âµ±Ç°µÄÎ»×ÜÏßÊÇ·ñÃ¦*/
+ 489   1        if((!Transmit_U2REQ)&&(Transmit_U2BusACK))/*¼ì²éU2ÊÇ·ñÌá³ö·¢ËÍÊý¾ÝÉêÇë£¬ÓÐÉêÇëÔòµÈ´ý*/
+ 490   1         {/*U2µÈ´ý*/
+ 491   2          Transmit_U1REQ=1;/*Ìá³öÉêÇë*/
+ 492   2        if(!Transmit_U2REQ)
+ 493   2         {   
+ 494   3           if((Data0&BIT0)==BIT0) {
+ 495   4         Transmit_DATA0=Transmit_DATA0|BIT0;
+ 496   4         }
+ 497   3             else{Transmit_DATA0=Transmit_DATA0&(~BIT0);
+ 498   4             }
+ 499   3             if((Data0&BIT1)==BIT1) {
+ 500   4             Transmit_DATA1=Transmit_DATA1|BIT1;
+ 501   4             }
+ 502   3             else{Transmit_DATA1=Transmit_DATA1&(~(BIT1>>1));
+ 503   4             }
+ 504   3               if((Data0&BIT2)==BIT2) {
+ 505   4               Transmit_DATA2=Transmit_DATA2|BIT2;}
+ 506   3               else{Transmit_DATA2=Transmit_DATA2&(~(BIT2>>2));
+ 507   4               }
+ 508   3               if((Data0&BIT3)==BIT3) {
+ 509   4               Transmit_DATA3=Transmit_DATA3|BIT3;}
+ 510   3               else{Transmit_DATA3=Transmit_DATA3&(~(BIT3>>3));
+ 511   4               }
+ 512   3             Transmit_U1STB=1;/*Ìá³öÖÐ¶ÏÉêÇë*/
+ 513   3           while(!Transmit_U2BusACK);/*µÈ´ýÍË³ö*/
+ 514   3           Transmit_U1REQ=0;
+ 515   3           Transmit_U1STB=0;
+ 516   3           return(0);
+ 517   3          }
+ 518   2        else 
+ 519   2         {Transmit_U1REQ=0;return(1);}
+ 520   2          }
+ 521   1        else
+ 522   1         {return(1);}/*U2Ã¦*/
+ 523   1         }
+ 524          /***************************************************************/
+ 525          /*º¯ÊýÃû³Æ£ºunsigned char Read_Byte(void)                      */
+ 526          /*º¯Êý¹¦ÄÜ£º½ÓÊÕÒ»¸ö×Ö½ÚµÄµÍ4Î»                                */
+ 527          /*Èë¿Ú²ÎÊý£ºÎÞ                                                 */
+ 528          /*³ö¿Ú²ÎÊý£ºÎÞ                                                 */
+ 529          /***************************************************************/
+ 530          unsigned char Read_Byte(void)/*½ÓÊÕÒ»¸ö×Ö½ÚµÄµÍ4Î»*/
+ 531            { unsigned char Read_Byte_data=0;
+ 532   1          if(Transmit_U2STB)/*U2STB=1,¶ÁÈ¡Ò»¸öÊý¾Ý*/                    
+ 533   1           { if(Transmit_DATA0) {Read_Byte_data=Read_Byte_data|BIT0;}
+ 534   2           if(Transmit_DATA1) {Read_Byte_data=Read_Byte_data|BIT1;}
+ 535   2           if(Transmit_DATA2) {Read_Byte_data=Read_Byte_data|BIT2;}
+ 536   2           if(Transmit_DATA3) {Read_Byte_data=Read_Byte_data|BIT3;}
+ 537   2           Transmit_U2BusACK=1;/*·¢ËÍÊý¾Ý¶ÁÈ¡Íê³ÉÏàÓ¦ÐÅºÅ*/
+ 538   2           delay_10us();
+ 539   2           Transmit_U2BusACK=0;/*·¢ËÍÊý¾Ý¶ÁÈ¡Íê³ÉÏàÓ¦ÐÅºÅ*/
+ 540   2           return(Read_Byte_data);
+ 541   2          } 
+ 542   1         else
+ 543   1          {return(0);}  
+ 544   1         }
+ 545            
+C51 COMPILER V9.54   MAIN                                                                  12/20/2015 17:45:09 PAGE 10  
+
+ 546          void delay_10us(void)
+ 547            { unsigned char i=0,j=0;
+ 548   1          for(i=0;i<255;i++)
+ 549   1          for(j=0;j<255;j++)
+ 550   1           {_nop_();}
+ 551   1         }
+ 552          
+ 553          
+ 554          
+ 555          void Delay1000ms()    //@22.1184MHz
+ 556          {
+ 557   1        unsigned char i, j, k;
+ 558   1      
+ 559   1        _nop_();
+ 560   1        _nop_();
+ 561   1        i = 85;
+ 562   1        j = 12;
+ 563   1        k = 155;
+ 564   1        do
+ 565   1        {
+ 566   2          do
+ 567   2          {
+ 568   3            while (--k);
+ 569   3          } while (--j);
+ 570   2        } while (--i);
+ 571   1      }
+ 572          void Delay2000ms()    //@22.1184MHz
+ 573          {
+ 574   1        unsigned char i, j, k;
+ 575   1      
+ 576   1        _nop_();
+ 577   1        _nop_();
+ 578   1        i = 169;
+ 579   1        j = 24;
+ 580   1        k = 59;
+ 581   1        do
+ 582   1        {
+ 583   2          do
+ 584   2          {
+ 585   3            while (--k);
+ 586   3          } while (--j);
+ 587   2        } while (--i);
+ 588   1      }
+ 589          
+ 590          /***********************************************
+ 591          º¯ÊýÃû³Æ£ºDelay_ms
+ 592          ¹¦    ÄÜ£ºSTC15ÏµÁÐµ¥Æ¬»ú1msÑÓÊ±³ÌÐò
+ 593          Èë¿Ú²ÎÊý£ºms:ÑÓÊ±µÄºÁÃëÊý
+ 594          ·µ »Ø Öµ£ºÎÞ  
+ 595          ±¸    ×¢£ºÊ¾²¨Æ÷Êµ²â£º0.997ms£¬ÄÚ²¿Ê±ÖÓ£º11.0592MHz           
+ 596          ************************************************/
+ 597          void Delay_ms(unsigned int ms)
+ 598          {
+ 599   1        
+ 600   1          unsigned int i;
+ 601   1          while( (ms--) != 0)
+ 602   1          {
+ 603   2            for(i = 0; i < 580; i++); 
+ 604   2          } 
+ 605   1        
+ 606   1      }
+ 607          void Delay200ms()     //@22.1184MHz
+C51 COMPILER V9.54   MAIN                                                                  12/20/2015 17:45:09 PAGE 11  
+
+ 608          {
+ 609   1        unsigned char i, j, k;
+ 610   1      
+ 611   1        _nop_();
+ 612   1        _nop_();
+ 613   1        i = 17;
+ 614   1        j = 208;
+ 615   1        k = 27;
+ 616   1        do
+ 617   1        {
+ 618   2          do
+ 619   2          {
+ 620   3            while (--k);
+ 621   3          } while (--j);
+ 622   2        } while (--i);
+ 623   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1855    ----
+   CONSTANT SIZE    =    105    ----
+   XDATA SIZE       =   1465      18
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      8       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

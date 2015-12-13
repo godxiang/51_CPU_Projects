@@ -1,0 +1,5 @@
+".\Objects\STARTUP.obj",
+".\Objects\main.obj",
+".\Objects\w25q64.obj" 
+TO ".\Objects\idcard_test" 
+PRINT(".\Listings\idcard_test.m51") RAMSIZE(256) 

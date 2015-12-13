@@ -1,0 +1,19 @@
+
+void main(void)
+	{
+		unsigned char i=0;
+		init_Uart4();
+		
+		while(1){
+		Delay1000ms();
+		while(i<10){
+			Uart4SendData(FIND_CARD[i++]); 
+		}
+			Delay1000ms();		
+		}
+	}
+
+循环有问题  while可以嵌套吗？？？？？
+
+
+

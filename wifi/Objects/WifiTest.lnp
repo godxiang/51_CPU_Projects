@@ -1,0 +1,3 @@
+".\Objects\WifiTest.obj" 
+TO ".\Objects\WifiTest" 
+PRINT(".\Listings\WifiTest.m51") RAMSIZE(256) 

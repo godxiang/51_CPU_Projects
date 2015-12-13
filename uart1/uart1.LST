@@ -1,0 +1,197 @@
+C51 COMPILER V9.54   UART1                                                                 11/22/2015 22:41:45 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE UART1
+OBJECT MODULE PLACED IN uart1.OBJ
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE uart1.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1          
+   2          
+   3          #include "reg51.h"
+   4          #include "intrins.h"
+   5          
+   6          typedef unsigned char BYTE;
+   7          typedef unsigned int WORD;
+   8          
+   9          #define FOSC 22118400L          //系统频率
+  10          #define BAUD 115200             //串口波特率
+  11          
+  12          #define NONE_PARITY     0       //无校验
+  13          #define ODD_PARITY      1       //奇校验
+  14          #define EVEN_PARITY     2       //偶校验
+  15          #define MARK_PARITY     3       //标记校验
+  16          #define SPACE_PARITY    4       //空白校验
+  17          
+  18          #define PARITYBIT NONE_PARITY   //定义校验位
+  19          
+  20          sfr AUXR  = 0x8e;               //辅助寄存器
+  21          
+  22          sfr P_SW1   = 0xA2;             //外设功能切换寄存器1
+  23          
+  24          #define S1_S0 0x40              //P_SW1.6
+  25          #define S1_S1 0x80              //P_SW1.7
+  26          
+  27          sbit P22 = P2^2;
+  28          
+  29          bit busy;
+  30          
+  31          void Uart1SendData(BYTE dat);
+  32          void Uart1SendString(char *s);
+  33          void Delay1000ms();
+  34          void Delay200ms();
+  35          
+  36          
+  37          void main()
+  38          {
+  39   1          ACC = P_SW1;
+  40   1          ACC &= ~(S1_S0 | S1_S1);    //S1_S0=0 S1_S1=0
+  41   1          P_SW1 = ACC;                //(P3.0/RxD, P3.1/TxD)
+  42   1          
+  43   1      //  ACC = P_SW1;
+  44   1      //  ACC &= ~(S1_S0 | S1_S1);    //S1_S0=1 S1_S1=0
+  45   1      //  ACC |= S1_S0;               //(P3.6/RxD_2, P3.7/TxD_2)
+  46   1      //  P_SW1 = ACC;  
+  47   1      //  
+  48   1      //  ACC = P_SW1;
+  49   1      //  ACC &= ~(S1_S0 | S1_S1);    //S1_S0=0 S1_S1=1
+  50   1      //  ACC |= S1_S1;               //(P1.6/RxD_3, P1.7/TxD_3)
+  51   1      //  P_SW1 = ACC;  
+  52   1      
+  53   1      #if (PARITYBIT == NONE_PARITY)
+  54   1          SCON = 0x50;                //8位可变波特率
+  55   1      #elif (PARITYBIT == ODD_PARITY) || (PARITYBIT == EVEN_PARITY) || (PARITYBIT == MARK_PARITY)
+C51 COMPILER V9.54   UART1                                                                 11/22/2015 22:41:45 PAGE 2   
+
+                  SCON = 0xda;                //9位可变波特率,校验位初始为1
+              #elif (PARITYBIT == SPACE_PARITY)
+                  SCON = 0xd2;                //9位可变波特率,校验位初始为0
+              #endif
+  60   1      
+  61   1          AUXR = 0x40;                //定时器1为1T模式
+  62   1          TMOD = 0x20;                //定时器1为模式2(8位自动重载)
+  63   1          TL1 = (256 - (FOSC/32/BAUD));   //设置波特率重装值
+  64   1          TH1 = (256 - (FOSC/32/BAUD));
+  65   1          TR1 = 1;                    //定时器1开始工作
+  66   1          ES = 1;                     //使能串口中断
+  67   1          EA = 1;
+  68   1          
+  69   1          while(1)
+  70   1          {
+  71   2            Uart1SendString("STC15W4K32S4\r\nUart3 Test !\r\n");
+  72   2            //Uart1SendString("STC15W4K32S4\r\nUart3 Test !\r\n");
+  73   2            Delay1000ms();
+  74   2            Delay200ms();
+  75   2          }
+  76   1      }
+  77          
+  78          /*----------------------------
+  79          UART 中断服务程序
+  80          -----------------------------*/
+  81          void Uart() interrupt 4 using 1
+  82          {
+  83   1          if (RI)
+  84   1          {
+  85   2              RI = 0;                 //清除RI位
+  86   2              P0 = SBUF;              //P0显示串口数据
+  87   2              P22 = RB8;              //P2.2显示校验位
+  88   2          }
+  89   1          if (TI)
+  90   1          {
+  91   2              TI = 0;                 //清除TI位
+  92   2              busy = 0;               //清忙标志
+  93   2          }
+  94   1      }
+  95          
+  96          /*----------------------------
+  97          发送串口数据
+  98          ----------------------------*/
+  99          void Uart1SendData(BYTE dat)
+ 100          {
+ 101   1          while (busy);               //等待前面的数据发送完成
+ 102   1          ACC = dat;                  //获取校验位P (PSW.0)
+ 103   1          if (P)                      //根据P来设置校验位
+ 104   1          {
+ 105   2      #if (PARITYBIT == ODD_PARITY)
+                      TB8 = 0;                //设置校验位为0
+              #elif (PARITYBIT == EVEN_PARITY)
+                      TB8 = 1;                //设置校验位为1
+              #endif
+ 110   2          }
+ 111   1          else
+ 112   1          {
+ 113   2      #if (PARITYBIT == ODD_PARITY)
+                      TB8 = 1;                //设置校验位为1
+              #elif (PARITYBIT == EVEN_PARITY)
+                      TB8 = 0;                //设置校验位为0
+              #endif
+C51 COMPILER V9.54   UART1                                                                 11/22/2015 22:41:45 PAGE 3   
+
+ 118   2          }
+ 119   1          busy = 1;
+ 120   1          SBUF = ACC;                 //写数据到UART数据寄存器
+ 121   1      }
+ 122          
+ 123          /*----------------------------
+ 124          发送字符串
+ 125          ----------------------------*/
+ 126          void Uart1SendString(char *s)
+ 127          {
+ 128   1          while (*s)                  //检测字符串结束标志
+ 129   1          {
+ 130   2              Uart1SendData(*s++);         //发送当前字符
+ 131   2          }
+ 132   1      }
+ 133          
+ 134          void Delay1000ms()    //@22.1184MHz
+ 135          {
+ 136   1        unsigned char i, j, k;
+ 137   1      
+ 138   1        _nop_();
+ 139   1        _nop_();
+ 140   1        i = 85;
+ 141   1        j = 12;
+ 142   1        k = 155;
+ 143   1        do
+ 144   1        {
+ 145   2          do
+ 146   2          {
+ 147   3            while (--k);
+ 148   3          } while (--j);
+ 149   2        } while (--i);
+ 150   1      }
+ 151          
+ 152          void Delay200ms()   //@22.1184MHz
+ 153          {
+ 154   1        unsigned char i, j, k;
+ 155   1      
+ 156   1        _nop_();
+ 157   1        _nop_();
+ 158   1        i = 17;
+ 159   1        j = 208;
+ 160   1        k = 27;
+ 161   1        do
+ 162   1        {
+ 163   2          do
+ 164   2          {
+ 165   3            while (--k);
+ 166   3          } while (--j);
+ 167   2        } while (--i);
+ 168   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    144    ----
+   CONSTANT SIZE    =     29    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       3
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+END OF MODULE INFORMATION.
+
+C51 COMPILER V9.54   UART1                                                                 11/22/2015 22:41:45 PAGE 4   
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
