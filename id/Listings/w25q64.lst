@@ -1,4 +1,4 @@
-C51 COMPILER V9.54   W25Q64                                                                12/20/2015 17:45:09 PAGE 1   
+C51 COMPILER V9.54   W25Q64                                                                12/22/2015 17:47:52 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE W25Q64
@@ -62,7 +62,7 @@ line level    source
   52          ±¸    ×¢£ºÎÞ
   53          ************************************************/
   54          unsigned char sFLASH_ReadByte(void)
-C51 COMPILER V9.54   W25Q64                                                                12/20/2015 17:45:09 PAGE 2   
+C51 COMPILER V9.54   W25Q64                                                                12/22/2015 17:47:52 PAGE 2   
 
   55          {
   56   1        unsigned char i;
@@ -126,7 +126,7 @@ line level    source
  114   1          while ((flashstatus & sFLASH_WIP_FLAG) == 0x01); 
  115   1      
  116   1          //Ð¾Æ¬½ûÖ¹ 
-C51 COMPILER V9.54   W25Q64                                                                12/20/2015 17:45:09 PAGE 3   
+C51 COMPILER V9.54   W25Q64                                                                12/22/2015 17:47:52 PAGE 3   
 
  117   1          W25Q64_WCS_Set();
  118   1      }
@@ -190,7 +190,7 @@ line level    source
  176   1      
  177   1          //Ð¾Æ¬½ûÖ¹ 
  178   1          W25Q64_WCS_Set();
-C51 COMPILER V9.54   W25Q64                                                                12/20/2015 17:45:09 PAGE 4   
+C51 COMPILER V9.54   W25Q64                                                                12/22/2015 17:47:52 PAGE 4   
 
  179   1      
  180   1          //µÈ´ýÐ´Íê³É
@@ -254,7 +254,7 @@ line level    source
  238   1          //µÈ´ýÐ´Íê³É
  239   1          sFLASH_WaitForWriteEnd();
  240   1      }
-C51 COMPILER V9.54   W25Q64                                                                12/20/2015 17:45:09 PAGE 5   
+C51 COMPILER V9.54   W25Q64                                                                12/22/2015 17:47:52 PAGE 5   
 
  241          
  242          

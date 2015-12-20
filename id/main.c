@@ -5,25 +5,14 @@ void main(void)
 	{
 		init_Uart();
 		IO_Init();
-		Delay2000ms();												//等待身份证模块上电稳定
-		P4M0 = 0;
-		P4M1 = 0;
-	
+		
 		while(1){
-			
 			if(Uart3HaveData){
 			Delay200ms();												//等待串口接收数据完毕
 			UART3_Proccess();										//串口数据处理
+			CommonMessProce();									//通用消息处理函数
 			}
-		};
-		//Sent_Byte	(0x0c);	
-		
-		
-		//sFLASH_EraseSector(FLASH_SectorToErase);
-		//sFLASH_ReadBuffer(TotalNumData,FLASH_ReadAddress,2);	 							   //上电稳定以后先读取Flash中储存数据的个数
-		//Save_IDNum_ToFlash(TestIdData);
-		//Op_IdCard();		
-		//Flash_Op();
+		};		
 }
 /*****************************************/
 /* 串口1、4初始化													 */
@@ -84,50 +73,9 @@ void Uart4_ISR() interrupt 18 using 1
 			dat = S4BUF;
 			if(Rece_Cnt < 1295)																	
 			re_data_buffer[Rece_Cnt++] = dat;
-		/*if(length == 4 && Rece_Cnt < 12){																		//返回错误消息	
-				//Re_Data_Buffer.Re_FindCard_Data.Failure[Rece_Cnt++]=dat;					//继续接收4个字节数据																			//计数标记成功对比一位相应计数标签加1 tag[0]--寻卡 tag[1]--选卡 tag[2]--读卡
-				testdata[Rece_Cnt++] = dat;
-		}
-			
-		else if(length == 8 && Rece_Cnt < 14){
-				Re_Data_Buffer.Re_FindCard_Data.Seccess[Rece_Cnt++]=dat;					//继续接收8个字节数据
-				 if(Rece_Cnt == 13){																							//接收完毕开始对比数据		
-					for(i = 6;i < 13; i++){
-						if( ! Re_Data_Buffer.Re_FindCard_Data.Seccess[i] == Re_Data.Re_FindCard_Data.Seccess[i])
-							OpCart_FindCart_State = 0;
-					}
-					OpCart_FindCart_State = 1;
-				}
-		}
-		else if(length == 12 && Rece_Cnt < 19){
-			Re_Data_Buffer.Re_SelectCard_Data.Seccess[Rece_Cnt++]=dat;				//继续接收12个字节数据
-			if(Rece_Cnt == 18){																							//接收完毕开始对比数据		
-					for(i = 6;i < 18; i++){
-						if( ! Re_Data_Buffer.Re_SelectCard_Data.Seccess[i] == Re_Data.Re_SelectCard_Data.Seccess[i])
-							OpCart_SelectCart_State = 0;
-					}
-					OpCart_SelectCart_State = 1;
-				}
-		}
-		else if(length == 1288 && Rece_Cnt < 1295){
-			if(Rece_Cnt < 10)
-			Re_Data_Buffer.Re_ReadCard_Data.Seccess[Rece_Cnt++]=dat;				//继续接收3个字节数据(返回成功标志位)
-			if(Rece_Cnt == 9){																							//接收完毕开始对比数据		
-					for(i = 7;i < 10; i++){
-						if( ! Re_Data_Buffer.Re_ReadCard_Data.Seccess[i] == Re_Data.Re_ReadCard_Data.Seccess[i])
-							OpCart_ReadCart_State = 0;
-					}
-					OpCart_ReadCart_State = 1;
-				}
-					if(Rece_Cnt > 137  && Rece_Cnt < 167){																														//捡起数据，即接收身份证号码
-						Rece_Cnt++;																																											//每隔1个字节取数据
-						Id_Number[Rece_Cnt++] = dat;																																		//18位身份证号保存下来
-					}
-		}*/
         S4CON &= ~S4RI;        																				//串口接收中断标记需软件清零
 		}
 				
-		
 		if (S4CON & S4TI)
 		{
 			S4CON&= ~S4TI;
@@ -187,18 +135,22 @@ void UART3_Proccess(void){
 			
 		}
 			if(j==6){																														//是本机编号
-				for	(j = 10;j<Re_length + 10;j++){																//计算校验码CS
+				for	(j = 13;j<Re_length + 13;j++){																//计算校验码CS
 					CS+=S3_Re_Buffer[j];
 				}
-				if(CS == S3_Re_Buffer[10+Re_length])															//校验码CS是否出错 不出错则进行数据解析
+				if(CS == S3_Re_Buffer[13+Re_length])															//校验码CS是否出错 不出错则进行数据解析
 				{
-					Uart3SendString("the CS is\n");
-					Uart3SendData(CS);
-					for(j=0;j<3;j++)
-						{
-						if(MessageType[j][0] == S3_Re_Buffer[11] && MessageType[j][0] == S3_Re_Buffer[12])
-						MessType = j;
+					Uart3SendString("CS Passed!\n");
+					//Uart3SendData(CS);
+					if(S3_Re_Buffer[14+Re_length] == 0x16 && S3_Re_Buffer[15+Re_length] == 0x00){						//检查尾巴0x16
+					for(j=0;j<6;j++)
+							{
+							if(MessageType[j][0] == S3_Re_Buffer[11] && MessageType[j][1] == S3_Re_Buffer[12]) //这里确定MessType 
+							MessType = j;
+						}
 					}
+					else 
+						MessType = 0xff;																								//如果输入过长，提示输入错误，MessType为默认
 				}
 				else
 					Uart3SendString("CS Error!\n");
@@ -207,22 +159,84 @@ void UART3_Proccess(void){
 				Uart3SendString("not localhost number!\n");
 		}
 		Uart3HaveData = 0; 																											//数据处理完置串口3数据标记为0，等待下一次数据进入
-		Re_Cnt = 0;
-}
-
+		Re_Cnt = 0;																															//计数器归零
+		if(MessType != 0x03){																										//存身份证数据需要用到接收区数据
+			for(i=0;i<100;i++)
+		S3_Re_Buffer[i] = 0x00;																									//接收取初始化为0x00
+		}
+	}
 /***********************************************
-*函数名称：Flash_Op
-*功    能：flash操作函数
+*函数名称：CommonMessProce
+*功    能：通用消息处理函数函数
+*入口参数：无
+*返 回 值：无	
+*备    注：根据消息类型MessType值做出相应动作
+************************************************/
+
+void CommonMessProce(void){
+	unsigned char i,j;
+	
+	switch (MessType){
+		case 0x00 :
+			Uart3SendString("Heart packet!\n");
+			break;
+		case 0x01 :
+			Uart3SendString("Realoading!\n");
+			break;
+		case 0x02 :																																//开闸
+			Uart3SendString("Open The Door!\n");
+			P43 = 0;
+			P44 = 0;
+			Delay2000ms();
+			P43 = 1;
+			P44 = 1;
+			break;
+		case 0x03 :																																//下载业主身份证信息
+		for(i=2,j=13;i<20,j<31;i++,j++)
+		  IdData[i] = S3_Re_Buffer[j];																						//整理数据，准备往Flash中存
+			for (i=0;i<100;i++)																											//存完将接收数组置零
+			S3_Re_Buffer[i] = 0x00;
+			sFLASH_EraseSector(FLASH_SectorToErase);																//删除一个扇区
+			sFLASH_ReadBuffer(TotalNumData,FLASH_ReadAddress,2);	 							   //上电稳定以后先读取Flash中储存数据的个数
+			Save_IDNum_ToFlash();
+			Uart3SendString("Save Id Number Success!\n");
+			break;
+		case 0x04 :																															//身份信息验证
+			Uart3SendString("Please Scan the ID Cart!\n");
+			Op_IdCard();																													//身份证信息扫描录入
+			if(Compare_Id_NumberInfo()){																					//开始对比数据
+				Uart3SendString("ID Number Verification Pass!Open The Door!\n");
+				P43 = 0;																														//开闸
+				P44 = 0;
+				Delay2000ms();
+				P43 = 1;
+				P44 = 1;
+			}
+			else
+				Uart3SendString("ID Number Error!\n");
+			break;
+		case 0x05 :																																//发送心跳包
+			for(i=0;i<16;i++){
+			Uart3SendData(HeartBreak[i]);
+			}
+		default :
+			Uart3SendString("Please Input right command!\n");
+		}
+	MessType = 0xff;																													//MessType 消息处理完后，恢复到默认状态。
+}
+/***********************************************
+*函数名称：Compare_Id_NumberInfo
+*功    能：身份证信息验证
 *入口参数：无
 *返 回 值：无	
 *备    注：无
 ************************************************/
-void Flash_Op(void){
+bit Compare_Id_NumberInfo(void){
 	unsigned int Cnt,Cnt0,ID;
-	ID=sFLASH_ReadID();							//读取W25Q64的器件ID号																		
+	ID=sFLASH_ReadID();								//读取W25Q64的器件ID号																		
 		if(ID!=sFLASH_W25Q64_ID)				//如果ID号不同
 		{
-			Uart1SendString("ID ERROR!");
+			Uart3SendString("ID ERROR!");
 			while(1);	
 		}
 
@@ -246,23 +260,13 @@ void Flash_Op(void){
 		//如果有数据不同
 		if(spi_re_data_buffer[Cnt]!=Id_Number[Cnt0])
 		{			
-			//ToDisplayError(ERR2);//显示错误信息
-			//Uart1SendString("Read Error!");
-			while(1);			
+			return 0;			
 		}	
-		
 	}	
 	if(Cnt == 0x0014){															//数据没有错
-	P43 = 0;
-	P44 = 0;
-	Delay2000ms();
-	P43 = 1;
-	P44 = 1;
+		return 1;
 	}
-		//Uart1SendString("Success!");
-		//while(1);
-		//Uart4_Process();
-	
+	return 0;
 }
 
 
@@ -273,18 +277,16 @@ void Flash_Op(void){
 *返 回 值：无	
 *备    注：无
 ************************************************/
-void Save_IDNum_ToFlash(unsigned char * Data){
+void Save_IDNum_ToFlash(void){
 	
-
 	TotalNumData[0] = (unsigned char)(TotalNum>>8);												//TotalNum的高8位
 	TotalNumData[1] = (unsigned char)TotalNum;														//TotalNum的低8位
 	sFLASH_WritePage(TotalNumData,FLASH_WriteAddress,2);									//保存一下数据的个数  以便下次写操作追加  下次写操作先读取这个数 然后定位写的地址
 	TotalNum = Hex2Int (TotalNumData[0])*256 + Hex2Int (TotalNumData[1]);	//十六进制转换为10进制
 	FLASH_Address = (unsigned long int)(TotalNum*20);
 	FLASH_Address+=2;																											//指针右移2个字节
-	sFLASH_WritePage(Data,FLASH_Address,20);
+	sFLASH_WritePage(IdData,FLASH_Address,20);
 	TotalNum++;
-	
 }
 /***********************************************
 *函数名称：Op_IdCard
@@ -295,23 +297,24 @@ void Save_IDNum_ToFlash(unsigned char * Data){
 ************************************************/
 void Op_IdCard(void){
 	unsigned int n,Cnt;
-	while(1){																								//不断循环等待放卡
-		while(!OpCart_FindCart_State){												//一直等待寻卡成功
+	bit flag = 0;
+	while(!flag){																								//不断循环等待放卡
+		while(!OpCart_FindCart_State){														//一直等待寻卡成功
 			for (n=0;n<10;n++){
 					Uart4SendData(FIND_CARD[n]);  
 				}
-						//Uart4_Process();
-				Delay200ms();			//等待接收数据
+						//Uart4_Process();	
+				Delay200ms();																					//等待接收数据
 				Uart4_Process();
 			}
 	if(OpCart_FindCart_State == 1){
 		Cnt = 0;
-		while(!OpCart_SelectCart_State && Cnt < 10){										  //一直等待选卡成功,最多重试10次 避免寻卡成功后移除了卡 而导致死循环
+		while(!OpCart_SelectCart_State && Cnt < 10){							//一直等待选卡成功,最多重试10次 避免寻卡成功后移除了卡 而导致死循环
 			for (n=0;n<10;n++){
 				Uart4SendData(SELECT_CARD[n]);  
 			}
 					//Uart4_Process();	
-			Delay200ms();				//等待接收数据
+			Delay200ms();																						//等待接收数据
 			Uart4_Process();
 			Cnt++;
 		}
@@ -326,8 +329,10 @@ void Op_IdCard(void){
 			Uart4_Process();
 			Cnt++;
 		}
-	if(Cnt == 1)
-	Flash_Op();
+	if(Cnt == 1){
+	Uart3SendString("Id Cart Read Success!\n");
+	flag = 1;																								//读卡成功置标志位Flag为0
+	}
 	}
 		OpCart_FindCart_State = 0;														//读取一张卡后重新初始化
 		OpCart_SelectCart_State = 0;
@@ -430,7 +435,8 @@ void IO_Init(void)
 	//将P04 P05 P06 P07设置为开漏口
 	//因为单片机为5V端口，W25Q64为3.3V端口，为了实现电平匹配
 	//将单片机设置为开漏结构，由外部上拉到3.3V。
-	
+	 P4M0 = 0;
+	 P4M1 = 0;																							//继电器端口初始化
 	 P0M1 |= (1<<4) | (1<<5) | (1<<6) | (1<<7) ;  
  	 P0M0 |= (1<<4) | (1<<5) | (1<<6) | (1<<7) ;
 	//分析
