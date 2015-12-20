@@ -237,7 +237,11 @@ void sFLASH_EraseSector(unsigned long int SectorAddr)
 
   	//µÈ´ýÐ´Íê³É
   	sFLASH_WaitForWriteEnd();
+<<<<<<< HEAD
 }
 
 
 
+=======
+}
+>>>>>>> 741b80e8e16e19c346deaf0cdf5f7f60e77eeebf

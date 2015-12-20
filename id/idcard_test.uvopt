@@ -117,7 +117,11 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGTP51</Key>
+<<<<<<< HEAD
           <Name>(98=-1,-1,-1,-1,0)(82=225,185,423,267,0)(83=-1,-1,-1,-1,0)(84=-1,-1,-1,-1,0)(85=270,233,468,315,0)(80=150,120,344,322,0)(91=150,103,350,367,0)(92=-1,-1,-1,-1,0)</Name>
+=======
+          <Name>(98=-1,-1,-1,-1,0)(82=-1,-1,-1,-1,0)(83=-1,-1,-1,-1,0)(84=-1,-1,-1,-1,0)(85=-1,-1,-1,-1,0)(80=-1,-1,-1,-1,0)(91=-1,-1,-1,-1,0)(92=-1,-1,-1,-1,0)</Name>
+>>>>>>> 741b80e8e16e19c346deaf0cdf5f7f60e77eeebf
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -140,11 +144,16 @@
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
+<<<<<<< HEAD
           <ItemText>S3_Re_Buffer</ItemText>
+=======
+          <ItemText>re_data_buffer</ItemText>
+>>>>>>> 741b80e8e16e19c346deaf0cdf5f7f60e77eeebf
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
+<<<<<<< HEAD
           <ItemText>LocalHostNum[i]</ItemText>
         </Ww>
         <Ww>
@@ -161,6 +170,9 @@
           <count>5</count>
           <WinNumber>1</WinNumber>
           <ItemText>j</ItemText>
+=======
+          <ItemText>ID</ItemText>
+>>>>>>> 741b80e8e16e19c346deaf0cdf5f7f60e77eeebf
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>
@@ -185,7 +197,11 @@
       <DebugFlag>
         <trace>0</trace>
         <periodic>1</periodic>
+<<<<<<< HEAD
         <aLwin>0</aLwin>
+=======
+        <aLwin>1</aLwin>
+>>>>>>> 741b80e8e16e19c346deaf0cdf5f7f60e77eeebf
         <aCover>0</aCover>
         <aSer1>0</aSer1>
         <aSer2>0</aSer2>
