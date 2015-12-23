@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\main.obj" 
+TO ".\Objects\Server_Receive_Test" 
+PRINT(".\Listings\Server_Receive_Test.m51") RAMSIZE(256) 

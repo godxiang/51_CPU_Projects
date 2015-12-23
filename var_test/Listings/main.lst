@@ -1,4 +1,4 @@
-C51 COMPILER V9.54   MAIN                                                                  12/01/2015 17:16:19 PAGE 1   
+C51 COMPILER V9.54   MAIN                                                                  12/28/2015 11:14:49 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
@@ -8,27 +8,70 @@ COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE 
 
 line level    source
 
-   1           
-   2           //十六进制转换成十进制
-   3           #define Hex2Int(x) ( (x/16)*10+(x%16) )
-   4          
-   5           //十进制转换成十六进制
-   6           #define Int2Hex(x) ( (x/10)*16+(x%10) )
-   7           
-   8           
-   9           
-  10           void main(void){
-  11   1         unsigned int i;
-  12   1         i=Hex2Int(0x0c);
-  13   1       }
+   1           #include "stc15w4k32s4.h"
+   2           #include <intrins.h>
+   3           #include <stdlib.h>
+   4          // #include <stdio.h>
+   5           //十六进制转换成十进制
+   6           //#define Hex2Int(x) ( (x/10)*10+(x%10) )
+   7          
+   8          
+   9           //十进制转换成十六进制
+  10           #define Int2Hex(x) ( (x/10)*16+(x%10) )
+  11           
+  12           void Delay2000ms();
+  13           
+  14           void main(void){
+  15   1         unsigned char Data[] =0xff;
+  16   1         unsigned int longth = 0x0010;
+  17   1         unsigned char *ptr;
+  18   1         unsigned char i;
+  19   1           ptr  = (unsigned char *)malloc(sizeof(unsigned char)*longth);
+  20   1         for(i=0;i<10;i++){
+  21   2           *ptr = 0xff;
+  22   2           ptr++;
+  23   2         }
+  24   1         ptr= ptr-10;
+  25   1       for(i=0;i<10;i++){
+  26   2           ptr++;
+  27   2         }
+  28   1           ptr= ptr-10;
+  29   1          free(ptr);
+  30   1      
+  31   1       for(i=0;i<10;i++){
+  32   2           ptr++;
+  33   2         }
+  34   1       }
+  35          
+  36          
+  37          
+  38           void Delay2000ms()   //@22.1184MHz
+  39          {
+  40   1        unsigned char i, j, k;
+  41   1      
+  42   1        _nop_();
+  43   1        _nop_();
+  44   1        i = 169;
+  45   1        j = 24;
+  46   1        k = 59;
+  47   1        do
+  48   1        {
+  49   2          do
+  50   2          {
+  51   3            while (--k);
+  52   3          } while (--j);
+  53   2        } while (--i);
+  54   1      }
+C51 COMPILER V9.54   MAIN                                                                  12/28/2015 11:14:49 PAGE 2   
+
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =      7    ----
-   CONSTANT SIZE    =   ----    ----
+   CODE SIZE        =    145    ----
+   CONSTANT SIZE    =      1    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =   ----       2
+   DATA SIZE        =   ----       4
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.

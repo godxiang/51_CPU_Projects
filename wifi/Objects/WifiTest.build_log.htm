@@ -27,14 +27,21 @@ Project File Date:  11/24/2015
 <h2>Output:</h2>
 Rebuild target 'Target 1'
 compiling WifiTest.c...
+WifiTest.c(96): warning C280: 'test': unreferenced local variable
 linking...
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
     SEGMENT: ?PR?_UART1SENDSTRING?WIFITEST
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_UART3SENDSTRING?WIFITEST
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
     SEGMENT: ?PR?_UART4SENDSTRING?WIFITEST
-Program Size: data=26.3 xdata=0 code=420
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_SENT_BYTE?WIFITEST
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?READ_BYTE?WIFITEST
+Program Size: data=28.3 xdata=0 code=576
 creating hex file from ".\Objects\WifiTest"...
-".\Objects\WifiTest" - 0 Error(s), 2 Warning(s).
+".\Objects\WifiTest" - 0 Error(s), 6 Warning(s).
 </pre>
 </body>
 </html>

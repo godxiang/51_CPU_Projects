@@ -1,0 +1,325 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        12/19/2015  18:38:53  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+C:\KEIL\C51\BIN\BL51.EXE ÷«ª€√≈Ω˚œµÕ≥…Ëº∆U1.obj TO ÷«ª€√≈Ω˚œµÕ≥…Ëº∆ RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  ÷«ª€√≈Ω˚œµÕ≥…Ëº∆U1.obj (_«ª€√≈Ω˚œµÕ≥…Ëº∆U1)
+  C:\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+  C:\KEIL\C51\LIB\C51S.LIB (?C?SLCMP)
+  C:\KEIL\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  ÷«ª€√≈Ω˚œµÕ≥…Ëº∆ (_«ª€√≈Ω˚œµÕ≥…Ëº∆U1)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            REG     0008H     0008H     ABSOLUTE     "REG BANK 1"
+            DATA    0010H     0005H     UNIT         ?DT?_«ª€√≈Ω˚œµÕ≥…Ëº∆U1
+            DATA    0015H     0001H     UNIT         ?DT?READ_BYTE?_«ª€√≈Ω˚œµÕ≥…Ëº∆U1
+            IDATA   0016H     0001H     UNIT         ?STACK
+
+            * * * * * * *  X D A T A   M E M O R Y  * * * * * * *
+            XDATA   0000H     0026H     UNIT         ?XD?_«ª€√≈Ω˚œµÕ≥…Ëº∆U1
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     002BH     UNIT         ?PR?READ_BYTE?_«ª€√≈Ω˚œµÕ≥…Ëº∆U1
+            CODE    002EH     000EH     UNIT         ?PR?DELAY_10US?_«ª€√≈Ω˚œµÕ≥…Ëº∆U1
+                    003CH     0007H                  *** GAP ***
+            CODE    0043H     0003H     ABSOLUTE     
+            CODE    0046H     0147H     UNIT         ?PR?UART2_INTRUPT_FUNCTION?_«ª€√≈Ω˚œµÕ≥…Ëº∆U1
+            CODE    018DH     008CH     UNIT         ?C_C51STARTUP
+            CODE    0219H     0073H     UNIT         ?PR?_SENT_BYTE?_«ª€√≈Ω˚œµÕ≥…Ëº∆U1
+            CODE    028CH     0061H     UNIT         ?PR?TRANSMIT_INIT?_«ª€√≈Ω˚œµÕ≥…Ëº∆U1
+            CODE    02EDH     0057H     UNIT         ?PR?MAIN?_«ª€√≈Ω˚œµÕ≥…Ëº∆U1
+            CODE    0344H     0021H     UNIT         ?C_INITSEG
+            CODE    0365H     001BH     UNIT         ?PR?UART2?_«ª€√≈Ω˚œµÕ≥…Ëº∆U1
+            CODE    0380H     0016H     UNIT         ?C?LIB_CODE
+
+
+
+OVERLAY MAP OF MODULE:   ÷«ª€√≈Ω˚œµÕ≥…Ëº∆ (_«ª€√≈Ω˚œµÕ≥…Ëº∆U1)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?PR?UART2?_«ª€√≈Ω˚œµÕ≥…Ëº∆U1
+  +--> ?PR?UART2_INTRUPT_FUNCTION?_«ª€√≈Ω˚œµ...
+
+*** NEW ROOT ***************************************************
+
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/19/2015  18:38:53  PAGE 2
+
+
+?C_C51STARTUP
+  +--> ?PR?MAIN?_«ª€√≈Ω˚œµÕ≥…Ëº∆U1
+  +--> ?C_INITSEG
+
+?PR?MAIN?_«ª€√≈Ω˚œµÕ≥…Ëº∆U1
+  +--> ?PR?TRANSMIT_INIT?_«ª€√≈Ω˚œµÕ≥…Ëº∆U1
+
+
+
+SYMBOL TABLE OF MODULE:  ÷«ª€√≈Ω˚œµÕ≥…Ëº∆ (_«ª€√≈Ω˚œµÕ≥…Ëº∆U1)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        _«ª€√≈Ω˚œµÕ≥…Ëº∆U1
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0092H         PUBLIC        P1M0
+  D:0096H         PUBLIC        P2M0
+  D:0091H         PUBLIC        P1M1
+  D:0080H         PUBLIC        P0
+  D:0095H         PUBLIC        P2M1
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  B:00A0H.0       PUBLIC        Transmit_DATA0
+  D:00C0H         PUBLIC        P4
+  B:00A0H.1       PUBLIC        Transmit_DATA1
+  D:00C8H         PUBLIC        P5
+  B:00A0H.2       PUBLIC        Transmit_DATA2
+  B:00A8H.7       PUBLIC        EA
+  D:00E8H         PUBLIC        P6
+  B:00A0H.3       PUBLIC        Transmit_DATA3
+  D:00F8H         PUBLIC        P7
+  D:00A2H         PUBLIC        P_SW1
+  D:00BAH         PUBLIC        P_SW2
+  D:00A8H         PUBLIC        IE
+  C:0219H         PUBLIC        _Sent_Byte
+  C:0046H         PUBLIC        Uart2_intrupt_function
+  D:00B8H         PUBLIC        IP
+  B:0098H.1       PUBLIC        TI
+  D:00D8H         PUBLIC        CCON
+  C:02EDH         PUBLIC        main
+  B:00A0H.5       PUBLIC        Transmit_U1REQ
+  X:0000H         PUBLIC        UART2_RE_DATA_Counter
+  B:00A0H.7       PUBLIC        Transmit_U2REQ
+  B:00A0H.4       PUBLIC        Transmit_U1STB
+  B:00A0H.6       PUBLIC        Transmit_U2STB
+  D:0099H         PUBLIC        SBUF
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  D:0088H         PUBLIC        TCON
+  B:0090H.3       PUBLIC        Transmit_U2BusACK
+  C:002EH         PUBLIC        delay_10us
+  D:00AFH         PUBLIC        IE2
+  D:008EH         PUBLIC        AUXR
+  D:00E0H         PUBLIC        ACC
+  D:008DH         PUBLIC        TH1
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/19/2015  18:38:53  PAGE 3
+
+
+  D:00D6H         PUBLIC        T2H
+  C:0365H         PUBLIC        Uart2
+  D:008BH         PUBLIC        TL1
+  D:00D7H         PUBLIC        T2L
+  B:0088H.6       PUBLIC        TR1
+  D:0010H         PUBLIC        UART2_Fe_DATA_CounterBuf
+  X:0002H         PUBLIC        UART2_RE_DATA
+  D:009BH         PUBLIC        S2BUF
+  D:009AH         PUBLIC        S2CON
+  D:0012H         PUBLIC        i
+  D:0014H         PUBLIC        UART2_int_buf1
+  C:028CH         PUBLIC        Transmit_init
+  X:0022H         PUBLIC        UART2_Fe_DATA_CS
+  X:0023H         PUBLIC        UART2_Fe_RE_DATA
+  C:0003H         PUBLIC        Read_Byte
+  X:0024H         PUBLIC        UART2_Fe_DATA_Buf
+  X:0025H         PUBLIC        UART2_Fe_flag
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          TRANSMIT_INIT
+  C:028CH         LINE#         55
+  C:028CH         LINE#         56
+  C:028FH         LINE#         57
+  C:0295H         LINE#         58
+  C:0298H         LINE#         59
+  C:029EH         LINE#         60
+  C:02A1H         LINE#         61
+  C:02A7H         LINE#         62
+  C:02AAH         LINE#         63
+  C:02B0H         LINE#         64
+  C:02B3H         LINE#         65
+  C:02B9H         LINE#         66
+  C:02BCH         LINE#         67
+  C:02C2H         LINE#         68
+  C:02C5H         LINE#         69
+  C:02CBH         LINE#         70
+  C:02CEH         LINE#         71
+  C:02D4H         LINE#         72
+  C:02DAH         LINE#         73
+  C:02E0H         LINE#         74
+  C:02E6H         LINE#         75
+  C:02ECH         LINE#         76
+  -------         ENDPROC       TRANSMIT_INIT
+  -------         PROC          _SENT_BYTE
+  D:0007H         SYMBOL        Data0
+  C:0219H         LINE#         104
+  C:0219H         LINE#         105
+  C:0219H         LINE#         106
+  C:021FH         LINE#         107
+  C:021FH         LINE#         108
+  C:0221H         LINE#         109
+  C:0224H         LINE#         110
+  C:022CH         LINE#         111
+  C:0236H         LINE#         112
+  C:0242H         LINE#         113
+  C:024CH         LINE#         114
+  C:0258H         LINE#         115
+  C:0262H         LINE#         116
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/19/2015  18:38:53  PAGE 4
+
+
+  C:026EH         LINE#         117
+  C:0278H         LINE#         118
+  C:027AH         LINE#         119
+  C:027DH         LINE#         120
+  C:027FH         LINE#         121
+  C:0281H         LINE#         122
+  C:0284H         LINE#         123
+  C:0284H         LINE#         125
+  C:0289H         LINE#         126
+  C:0289H         LINE#         128
+  C:028BH         LINE#         129
+  -------         ENDPROC       _SENT_BYTE
+  -------         PROC          READ_BYTE
+  -------         DO            
+  D:0015H         SYMBOL        Read_Byte_data
+  -------         ENDDO         
+  C:0003H         LINE#         136
+  C:0003H         LINE#         137
+  C:0006H         LINE#         138
+  C:0009H         LINE#         139
+  C:000FH         LINE#         140
+  C:0015H         LINE#         141
+  C:001BH         LINE#         142
+  C:0021H         LINE#         143
+  C:0023H         LINE#         144
+  C:0026H         LINE#         145
+  C:0028H         LINE#         146
+  C:002BH         LINE#         147
+  C:002BH         LINE#         149
+  C:002DH         LINE#         150
+  -------         ENDPROC       READ_BYTE
+  -------         PROC          DELAY_10US
+  -------         DO            
+  D:0007H         SYMBOL        i
+  D:0006H         SYMBOL        j
+  -------         ENDDO         
+  C:002EH         LINE#         151
+  C:002EH         LINE#         152
+  C:0030H         LINE#         153
+  C:0030H         LINE#         154
+  C:0032H         LINE#         155
+  C:003BH         LINE#         156
+  -------         ENDPROC       DELAY_10US
+  -------         PROC          MAIN
+  C:02EDH         LINE#         157
+  C:02EDH         LINE#         158
+  C:02EDH         LINE#         159
+  C:02F0H         LINE#         160
+  C:02F2H         LINE#         161
+  C:02F4H         LINE#         162
+  C:02F6H         LINE#         163
+  C:02F9H         LINE#         164
+  C:02FCH         LINE#         165
+  C:02FFH         LINE#         166
+  C:0302H         LINE#         167
+  C:0305H         LINE#         168
+  C:0307H         LINE#         172
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/19/2015  18:38:53  PAGE 5
+
+
+  C:030AH         LINE#         173
+  C:030DH         LINE#         174
+  C:0310H         LINE#         175
+  C:0313H         LINE#         176
+  C:0316H         LINE#         177
+  C:0319H         LINE#         178
+  C:031BH         LINE#         179
+  C:031BH         LINE#         180
+  C:0323H         LINE#         181
+  C:0342H         LINE#         195
+  -------         ENDPROC       MAIN
+  -------         PROC          UART2
+  C:0365H         LINE#         200
+  C:0372H         LINE#         201
+  C:0375H         LINE#         202
+  -------         ENDPROC       UART2
+  -------         PROC          UART2_INTRUPT_FUNCTION
+  C:0046H         LINE#         207
+  C:0046H         LINE#         208
+  C:004EH         LINE#         209
+  C:0051H         LINE#         211
+  C:0057H         LINE#         212
+  C:005FH         LINE#         213
+  C:0067H         LINE#         214
+  C:006FH         LINE#         215
+  C:0077H         LINE#         216
+  C:007FH         LINE#         217
+  C:0087H         LINE#         218
+  C:008FH         LINE#         219
+  C:0097H         LINE#         220
+  C:00A0H         LINE#         221
+  C:00ABH         LINE#         222
+  C:00ABH         LINE#         223
+  C:00AEH         LINE#         224
+  C:00AEH         LINE#         225
+  C:00B6H         LINE#         226
+  C:00BAH         LINE#         227
+  C:00C2H         LINE#         232
+  C:00C2H         LINE#         233
+  C:00C3H         LINE#         235
+  C:00C3H         LINE#         236
+  C:00DCH         LINE#         237
+  C:00E5H         LINE#         238
+  C:00F1H         LINE#         239
+  C:00FBH         LINE#         240
+  C:00FBH         LINE#         245
+  C:0108H         LINE#         246
+  C:0114H         LINE#         247
+  C:0119H         LINE#         249
+  C:0120H         LINE#         250
+  C:0120H         LINE#         251
+  C:012DH         LINE#         252
+  C:0145H         LINE#         253
+  C:014CH         LINE#         254
+  C:014CH         LINE#         256
+  C:0153H         LINE#         257
+  C:015EH         LINE#         258
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/19/2015  18:38:53  PAGE 6
+
+
+  C:016CH         LINE#         259
+  C:0181H         LINE#         260
+  C:018CH         LINE#         261
+  C:018CH         LINE#         262
+  C:018CH         LINE#         263
+  C:018CH         LINE#         264
+  -------         ENDPROC       UART2_INTRUPT_FUNCTION
+  -------         ENDMOD        _«ª€√≈Ω˚œµÕ≥…Ëº∆U1
+
+  -------         MODULE        ?C?SLCMP
+  C:0380H         PUBLIC        ?C?SLCMP
+  -------         ENDMOD        ?C?SLCMP
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_SENT_BYTE?_«ª€√≈Ω˚œµÕ≥…Ëº∆U1
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?READ_BYTE?_«ª€√≈Ω˚œµÕ≥…Ëº∆U1
+
+Program Size: data=23.0 xdata=38 code=911
+LINK/LOCATE RUN COMPLETE.  2 WARNING(S),  0 ERROR(S)

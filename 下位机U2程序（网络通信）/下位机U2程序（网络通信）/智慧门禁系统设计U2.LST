@@ -1,0 +1,200 @@
+C51 COMPILER V9.54   ________________U2                                                    12/19/2015 21:47:34 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE ________________U2
+OBJECT MODULE PLACED IN 智慧门禁系统设计U2.OBJ
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE 智慧门禁系统设计U2.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1          #include "STC15W4K32S4.h"
+   2          #include <intrins.H>
+   3          #define S2_S0 0x01              //P_SW2.0
+   4          #define S1_S0 0x40              //P_SW1.6
+   5          #define S1_S1 0x80              //P_SW1.7
+   6          #define FOSC 22118400L          //系统频率
+   7          #define BAUD 9600             //串口波特率
+   8          #define BAUD1 9600             //串口波特率
+   9          #define BIT0 0x01
+  10          #define BIT1 0x02
+  11          #define BIT2 0x04
+  12          #define BIT3 0x08
+  13          #define BIT4 0x10
+  14          #define BIT5 0x20
+  15          #define BIT6 0x40
+  16          #define BIT7 0x80             
+  17          sbit Transmit_DATA0 =P2^0;
+  18          sbit Transmit_DATA1 =P2^1;
+  19          sbit Transmit_DATA2 =P2^2;
+  20          sbit Transmit_DATA3 =P2^3;
+  21          sbit Transmit_U2STB =P2^6;/*当发送数据时，需要先使此位置高，默认为输出，低电平*/
+  22          sbit Transmit_U2REQ =P2^7;/*当接收到来自其他机器的高电平信号时，默认为输出*/
+  23          sbit Transmit_U1STB =P2^4;/*当其他机器向本机发送数据时，默认为输入*/
+  24          sbit Transmit_U1REQ =P2^5;/*当其他机器向本机发送数据时，默认为输入*/
+  25          sbit Transmit_U2BusACK =P1^3;/*默认为输出，忙信号*/
+  26          sbit Transmit_U1BusACK =P1^2;/*默认输入，忙信号检测*/
+  27          void delay_10us(void);
+  28          /***************************************************************/
+  29          /*函数名称：Void Transmit_init(void)                           */
+  30          /*函数功能：发送初始化程序                                     */
+  31          /*入口参数：无                                                 */
+  32          /*出口参数：无                                                 */
+  33          /***************************************************************/
+  34          void Transmit_init(void)
+  35           { P2M0=P2M0&(~BIT0);/*设定P2.0为高阻输入*/
+  36   1         P2M1=P2M0|BIT0;
+  37   1         P2M0=P2M0&(~BIT1);/*设定P2.1为高阻输入*/
+  38   1         P2M1=P2M0|BIT1;
+  39   1         P2M0=P2M0&(~BIT2);/*设定P2.2为高阻输入*/
+  40   1         P2M1=P2M0|BIT2;
+  41   1         P2M0=P2M0&(~BIT3);/*设定P2.3为高阻输入*/
+  42   1         P2M1=P2M0|BIT3;
+  43   1         P2M0=P2M0&(~BIT4);/*设定P2.4为输出*/
+  44   1         P2M1=P2M0&(~BIT4);
+  45   1         P2M0=P2M0&(~BIT5);/*设定P2.5为输出*/
+  46   1         P2M1=P2M0&(~BIT5);
+  47   1         P2M0=P2M0&(~BIT6);/*设定P2.6为高阻输入*/
+  48   1         P2M1=P2M0|BIT6;
+  49   1         P2M0=P2M0&(~BIT7);/*设定P2.7为高阻输入*/
+  50   1         P2M1=P2M0|BIT7;
+  51   1         P1M0=P2M0&(~BIT2);/*设定P1.2为输出*/
+  52   1         P1M1=P2M0&(~BIT2);
+  53   1         P1M0=P2M0&(~BIT3);/*设定P1.3为高阻输入*/
+  54   1         P1M1=P2M0|BIT3;
+  55   1        }
+C51 COMPILER V9.54   ________________U2                                                    12/19/2015 21:47:34 PAGE 2   
+
+  56          
+  57          /***************************************************************/
+  58          /*函数名称：void Sent_Byte(unsigned char Data0)                */
+  59          /*函数功能：发送一个字节的低4位                                */
+  60          /*入口参数：无                                                 */
+  61          /*出口参数：无                                                 */
+  62          /*发送数据流程① 一方单片机检查8位端口状态信号CHKREQ ，以判断对方是否已提 出发送数据的申请。
+  63                        ② 如果对方提出申请则等待，否则提出发送数据申请，并置REQ有效。 
+  64                  ③ 再次检查8位端口状态信号CHKREQ判断对方是否提出发送数据的申请。
+  65                  ④ 如果对方提出申请则发生冲突，清楚REQ并延时，然后执行第一步。
+  66                  ⑤ 将数据送8位端口，再设定STB有效, 使对方进入中断以便取走数据。
+  67                  ⑥ 检查CHK，等待对方单片机取走数据。
+  68                  ⑦ 检查数据是否发 送完，如果没有则继续执行步骤5进行发送。
+  69                  ⑧ 撤销REQ信号，释放8位端口。
+  70                  ⑨ 数据发送 完毕退出流程。
+  71          数据接收流程：①进入中断服务流程。
+  72                        ②从8位端口读取数据。
+  73                  ③设置ACK信号有 效，表示数据已成功读取。
+  74                  ④退出中断服务流程。
+  75          /*           P2>----------------------P2                     */
+  76          /*           STB>---------------------INT                    */
+  77          /*           REQ>---------------------CHKREQ                 */
+  78          /*           INT<---------------------STB                    */
+  79          /*           CHKREQ<---------------------REQ                 */
+  80          /*           ACK--------------------->CHKACK               */
+  81          /*           CHKACK<---------------------ACK               */
+  82          /*************************************************************/
+  83          unsigned char  Sent_Byte(unsigned char Data0)/*发送一个字节的低4位*/
+  84            {/*首先检测当前的位总线是否忙*/
+  85   1        if((!Transmit_U2REQ)&&(Transmit_U2BusACK))/*检查U2是否提出发送数据申请，有申请则等待*/
+  86   1         {/*U2等待*/
+  87   2          Transmit_U1REQ=1;/*提出申请*/
+  88   2        if(!Transmit_U2REQ)
+  89   2         {   if((Data0&BIT0)==BIT0) {Transmit_DATA0=Transmit_DATA0|BIT0;}
+  90   3             else{Transmit_DATA0=Transmit_DATA0&(~BIT0);}
+  91   3             if((Data0&BIT1)==BIT1) {Transmit_DATA0=Transmit_DATA0|BIT1;}
+  92   3             else{Transmit_DATA0=Transmit_DATA0&(~BIT1);}
+  93   3               if((Data0&BIT2)==BIT2) {Transmit_DATA0=Transmit_DATA0|BIT2;}
+  94   3               else{Transmit_DATA0=Transmit_DATA0&(~BIT2);}
+  95   3               if((Data0&BIT3)==BIT3) {Transmit_DATA0=Transmit_DATA0|BIT3;}
+  96   3               else{Transmit_DATA0=Transmit_DATA0&(~BIT3);}
+  97   3             Transmit_U1STB=1;/*提出中断申请*/
+  98   3           while(!Transmit_U2BusACK);/*等待退出*/
+  99   3           Transmit_U1REQ=0;
+ 100   3           Transmit_U1STB=0;
+ 101   3           return(0);
+ 102   3          }
+ 103   2        else 
+ 104   2         {Transmit_U1REQ=0;return(1);}
+ 105   2          }
+ 106   1        else
+ 107   1         {return(1);}/*U2忙*/
+ 108   1         }
+ 109          /***************************************************************/
+ 110          /*函数名称：unsigned char Read_Byte(void)                      */
+ 111          /*函数功能：接收一个字节的低4位                                */
+ 112          /*入口参数：无                                                 */
+ 113          /*出口参数：无                                                 */
+ 114          /***************************************************************/
+ 115          unsigned char Read_Byte(void)/*接收一个字节的低4位*/
+ 116            { unsigned char Read_Byte_data=0;
+ 117   1          if(Transmit_U2STB)/*U2STB=1,读取一个数据*/                    
+C51 COMPILER V9.54   ________________U2                                                    12/19/2015 21:47:34 PAGE 3   
+
+ 118   1           { if(Transmit_DATA0) {Read_Byte_data=Read_Byte_data|BIT0;}
+ 119   2           if(Transmit_DATA1) {Read_Byte_data=Read_Byte_data|BIT1;}
+ 120   2           if(Transmit_DATA2) {Read_Byte_data=Read_Byte_data|BIT2;}
+ 121   2           if(Transmit_DATA3) {Read_Byte_data=Read_Byte_data|BIT3;}
+ 122   2           Transmit_U2BusACK=1;/*发送数据读取完成相应信号*/
+ 123   2           delay_10us();
+ 124   2           Transmit_U2BusACK=0;/*发送数据读取完成相应信号*/
+ 125   2           return(Read_Byte_data);
+ 126   2          } 
+ 127   1         else
+ 128   1          {return(0);}  
+ 129   1         }
+ 130          void delay_10us(void)
+ 131            { unsigned char i=0,j=0;
+ 132   1          for(i=0;i<255;i++)
+ 133   1          for(j=0;j<255;j++)
+ 134   1           {_nop_();}
+ 135   1         }  
+ 136          void main(void)
+ 137          { unsigned char uart_data[20]=0;unsigned int i=0;
+ 138   1          Transmit_init();
+ 139   1      
+ 140   1          ACC = P_SW1;
+ 141   1          ACC &= ~(S1_S0 | S1_S1);    //S1_S0=0 S1_S1=0
+ 142   1          P_SW1 = ACC;                //(P3.0/RxD, P3.1/TxD)     
+ 143   1          SCON = 0x50;                //8位可变波特率
+ 144   1          AUXR = 0x40;                //定时器1为1T模式
+ 145   1          TMOD = 0x00;                //定时器1为模式0(16位自动重载)
+ 146   1          TL1 = (65536 - (FOSC/4/BAUD));   //设置波特率重装值
+ 147   1          TH1 = (65536 - (FOSC/4/BAUD))>>8;
+ 148   1          TR1 = 1;                    //定时器1开始启动
+ 149   1          ES = 1;                     //使能串口中断
+ 150   1          EA = 1;
+ 151   1          //P_SW2 &= ~S2_S0;            //S2_S0=0 (P1.0/RxD2, P1.1/TxD2)
+ 152   1          P_SW2 |= S2_S0;             //S2_S0=1 (P4.6/RxD2_2, P4.7/TxD2_2)
+ 153   1          S2CON = 0x50;               //8位可变波特率
+ 154   1          T2L = (65536 - (FOSC/4/BAUD1));   //设置波特率重装值
+ 155   1          T2H = (65536 - (FOSC/4/BAUD1))>>8;
+ 156   1          AUXR = 0x54;                //T2为1T模式, 并启动定时器2
+ 157   1          IE2 = 0x01;                 //使能串口2中断
+ 158   1          EA = 1;
+ 159   1          while(1)
+ 160   1          { //i++;      
+ 161   2          //if(i>65505){SBUF=0x43;while(!TI);TI=0;i=0;}
+ 162   2      
+ 163   2           /*if((S2CON&0x01)==0x01)
+ 164   2            {S2CON=S2CON&0xfe;
+ 165   2           uart_data[0]=S2BUF;
+ 166   2           SBUF=uart_data[0];while(!TI);TI=0;
+ 167   2           } */
+ 168   2           }
+ 169   1          ;
+ 170   1      }
+ 171          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    345    ----
+   CONSTANT SIZE    =     20    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      23
+C51 COMPILER V9.54   ________________U2                                                    12/19/2015 21:47:34 PAGE 4   
+
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

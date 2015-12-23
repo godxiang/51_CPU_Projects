@@ -17,3 +17,36 @@ void main(void)
 
 
 
+
+if( (dat==0x00 || dat==0x05)  && Header_State==1){							//第六位接收完毕
+				Rece_Cnt++;
+			if(dat == 0x04){																								//第七位数据长度为0x04表示已经失败
+				Rece_Cnt++;
+					Re_Data_Buffer.Re_FindCard_Data.Failure[Rece_Cnt++]=dat;    //拿四个字节空间（这里无视结构体避免歧义）保存接收的数据
+				if(Rece_Cnt == 0x0b){																					//Rece_Cnt等于11表示接受数据完毕接下来比较，得出什么样的失败结果
+					unsigned char tag[3];																				//计数标记成功对比一位相应计数标签加1 tag[0]--寻卡 tag[1]--选卡 tag[2]--读卡
+					for(i=9;i<12;i++){
+						if (Re_Data_Buffer.Re_FindCard_Data.Failure[i] == Re_Data.Re_FindCard_Data.Failure[i])
+							tag[0]++;
+						if (Re_Data_Buffer.Re_FindCard_Data.Failure[i] == Re_Data.Re_SelectCard_Data.Failure[i])
+							tag[1]++;
+						if (Re_Data_Buffer.Re_FindCard_Data.Failure[i] == Re_Data.Re_ReadCard_Data.Failure[i])
+							tag[2]++;
+					}
+					if(tag[0] == 4)
+						OpCart_FindCart_State = 1;
+					else
+						OpCart_FindCart_State = 0;
+				
+					if(tag[1] == 4)
+						OpCart_SelectCart_State = 1;
+					else
+						OpCart_SelectCart_State = 0;
+				
+					if(tag[2] == 4)
+						OpCart_ReadCart_State = 1;
+					else
+						OpCart_ReadCart_State = 0;
+					}
+				}
+			}

@@ -1,0 +1,4 @@
+"STARTUP.obj",
+"智慧门禁系统设计U2.obj" 
+TO "下位机U2程序（网络通信）" 
+RAMSIZE(256) 

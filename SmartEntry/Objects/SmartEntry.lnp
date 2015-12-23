@@ -1,0 +1,8 @@
+".\Objects\STARTUP.obj",
+".\Objects\main.obj",
+".\Objects\LD9900MT.obj",
+".\Objects\idcard.obj",
+".\Objects\w25q64.obj",
+".\Objects\uart.obj" 
+TO ".\Objects\SmartEntry" 
+PRINT(".\Listings\SmartEntry.m51") RAMSIZE(256) 

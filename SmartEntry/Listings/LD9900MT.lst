@@ -1,0 +1,372 @@
+C51 COMPILER V9.54   LD9900MT                                                              01/02/2016 12:08:18 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE LD9900MT
+OBJECT MODULE PLACED IN .\Objects\LD9900MT.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE LD9900MT.c LARGE OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Lis
+                    -tings\LD9900MT.lst) TABS(2) OBJECT(.\Objects\LD9900MT.obj)
+
+line level    source
+
+   1          #include "LD9900MT.h"
+   2          #include "uart.h"
+   3          
+   4          ZA_8CONST GETIMAGE_CMD[]={0xEF,0x01,0xFF,0xFF,0xFF,0xFF,0x01,0x00,0x03,0x01,0x00,0x05};
+   5          ZA_8CONST GENCHAR_CMD[]={0xEF,0x01,0xFF,0xFF,0xFF,0xFF,0x01,0x00,0x04,0x02};
+   6          ZA_8CONST CREATET_CMD[]={0xEF,0x01,0xFF,0xFF,0xFF,0xFF,0x01,0x00,0x03,0x05,0x00,0x09};
+   7          ZA_8CONST UPCHAR_CMD[]={0xEF,0x01,0xFF,0xFF,0xFF,0xFF,0x01,0x00,0x04,0x08};
+   8          ZA_8CONST DOWNCHAR_CMD[]={0xEF,0x01,0xFF,0xFF,0xFF,0xFF,0x01,0x00,0x04,0x09};
+   9          ZA_8CONST STORE_CMD[]={0xEF,0x01,0xFF,0xFF,0xFF,0xFF,0x01,0x00,0x06,0x06};
+  10          ZA_8CONST LOADCHAR_CMD[]={0xEF,0x01,0xFF,0xFF,0xFF,0xFF,0x01,0x00,0x06,0x07};
+  11          ZA_8CONST DELETECHAR_CMD[]={0xEF,0x01,0xFF,0xFF,0xFF,0xFF,0x01,0x00,0x07,0x0C};
+  12          ZA_8CONST EMPTY_CMD[]={0xEF,0x01,0xFF,0xFF,0xFF,0xFF,0x01,0x00,0x03,0x0D,0x00,0x11};
+  13          ZA_8CONST MATCH_CMD[]={0xEF,0x01,0xFF,0xFF,0xFF,0xFF,0x01,0x00,0x03,0x03,0x00,0x07};
+  14          ZA_8CONST SEARCH_CMD[]={0xEF,0x01,0xFF,0xFF,0xFF,0xFF,0x01,0x00,0x08,0x04};
+  15          ZA_8CONST READTN_CMD[]={0xEF,0x01,0xFF,0xFF,0xFF,0xFF,0x01,0x00,0x03,0x1D,0x00,0x21};
+  16          ZA_8CONST SETSYSP_CMD[]={0xEF,0x01,0xFF,0xFF,0xFF,0xFF,0x01,0x00,0x05,0x0E};
+  17          ZA_8CONST GETSYSP_CMD[]={0xEF,0x01,0xFF,0xFF,0xFF,0xFF,0x01,0x00,0x03,0x0F,0x00,0x13};
+  18          
+  19          
+  20          //下面函数由外部提供,下面是51单片机的实现，与硬件和外部有关函数的实现
+  21          
+  22          ZA_8U LD9900MT_ReceiveBuff[32]={0};
+  23          void LD9900MT_DelayMs(ZA_16U u16Count)
+  24          {
+  25   1      Delay_ms(u16Count);
+  26   1      }
+  27          /*
+  28          void LD9900MT_PowerOn(void)
+  29          {
+  30          LD9900MT_POWER_PIN=1;
+  31          }
+  32          void LD9900MT_PowrDown(void)
+  33          {
+  34          LD9900MT_POWER_PIN=0;
+  35          }
+  36          */
+  37          
+  38          ZA_8U u8RevcLen=0;
+  39          /*
+  40          void UART1_Receive(void)  interrupt 4 using 1
+  41          { 
+  42          unsigned char dat;
+  43          EA = 0;
+  44          if(RI)
+  45          { 
+  46          dat = SBUF;
+  47          if(u8RevcLen<32)
+  48          {
+  49            LD9900MT_ReceiveBuff[u8RevcLen]=dat;
+  50            u8RevcLen++;
+  51          }
+  52          
+  53          else
+  54          {
+C51 COMPILER V9.54   LD9900MT                                                              01/02/2016 12:08:18 PAGE 2   
+
+  55            u8RevcLen=0;
+  56          }
+  57              RI = 0;
+  58          }
+  59          
+  60          if (TI)
+  61          {
+  62            TI = 0;
+  63            Uart1busy=0;
+  64          }
+  65          
+  66          EA = 1;           
+  67          }
+  68          */
+  69          
+  70          void UART4_Receive(void) interrupt 18 using 1
+  71          { 
+  72   1      unsigned char dat;
+  73   1      EA = 0;
+  74   1      if(S4CON & S4RI)
+  75   1      { 
+  76   2      dat = S4BUF;
+  77   2      if(u8RevcLen<32)
+  78   2      {
+  79   3        LD9900MT_ReceiveBuff[u8RevcLen]=dat;
+  80   3        u8RevcLen++;
+  81   3      }
+  82   2      
+  83   2      else
+  84   2      {
+  85   3        u8RevcLen=0;
+  86   3      }
+  87   2          S4CON &= ~S4RI;
+  88   2      }
+  89   1      
+  90   1      if (S4CON & S4TI)
+  91   1      {
+  92   2        S4CON&= ~S4TI;
+  93   2        Uart4busy=0;
+  94   2      }
+  95   1      
+  96   1      EA = 1;           
+  97   1      }
+  98          
+  99          
+ 100          ZA_8U LD9900MT_Receive(void)
+ 101          {
+ 102   1      ZA_8U len=0;
+ 103   1      //ZA_16U iTimeOut=0;
+ 104   1      //while(true)
+ 105   1      //{
+ 106   1      //  iTimeOut++;
+ 107   1      //  if(50000==iTimeOut)
+ 108   1      //  {
+ 109   1      //    #ifdef __C51__
+ 110   1      //    WatchDog();
+ 111   1      //    #endif
+ 112   1      //    break;
+ 113   1      //  }
+ 114   1      //} 
+ 115   1      len=u8RevcLen;
+ 116   1      u8RevcLen=0;
+C51 COMPILER V9.54   LD9900MT                                                              01/02/2016 12:08:18 PAGE 3   
+
+ 117   1      ET0=1;
+ 118   1      return len;
+ 119   1      }
+ 120          
+ 121          
+ 122          void LD9900MT_Send(ZA_8U *u8Data,ZA_8U len)
+ 123          {
+ 124   1      USART_Send(u8Data,len);
+ 125   1      ET0=0;//close extern interrupt 0
+ 126   1      }
+ 127          
+ 128          
+ 129          //与硬件有关外部提供的函数到此结束
+ 130          
+ 131          
+ 132          static const ZA_16U CMD_AddSum(ZA_8U *u8CmdData,ZA_8U len)
+ 133          {
+ 134   1      ZA_8U i=0;
+ 135   1      ZA_16U res=0;
+ 136   1      for(i=6;i<len;i++)
+ 137   1      {
+ 138   2      res +=u8CmdData[i];
+ 139   2      }
+ 140   1      return res;
+ 141   1      }
+ 142          
+ 143          
+ 144          
+ 145          static ZALD_Res LD9900MT_CMDPorcess(ZA_8U *u8CMD,ZA_16U u16CMDLen,ZA_8U *u8AttachData,ZA_16U u16ADLen)
+ 146          {
+ 147   1      ZA_8U i=0;
+ 148   1      for(i=0;i<32;i++)
+ 149   1      {
+ 150   2      LD9900MT_ReceiveBuff[i]=0;
+ 151   2      }
+ 152   1      LD9900MT_Send(u8CMD,u16CMDLen);
+ 153   1      
+ 154   1      if(0!=u16ADLen)
+ 155   1      {
+ 156   2      LD9900MT_Send(u8AttachData,u16ADLen);
+ 157   2      }
+ 158   1      LD9900MT_Receive();
+ 159   1      Delay_ms(2000);                   //等待接收数据
+ 160   1      if((0xEF==LD9900MT_ReceiveBuff[0]) && (0x01==LD9900MT_ReceiveBuff[1]))
+ 161   1      {
+ 162   2      return LD9900MT_ReceiveBuff[9];
+ 163   2      }
+ 164   1      else
+ 165   1      {
+ 166   2      return LD_NODEVICE;
+ 167   2      }
+ 168   1      }
+ 169          
+ 170          
+ 171          ZALD_Res LD9900MT_Init(void)
+ 172          {
+ 173   1      //LD9900MT_PowerOn();
+ 174   1      LD9900MT_DelayMs(600); //at least 500ms
+ 175   1      //send the GETIMAGE_CM test the LD9900MT module is work normal
+ 176   1      return LD9900MT_CMDPorcess(GETIMAGE_CMD,sizeof(GETIMAGE_CMD),(ZA_8U*)0,0);
+ 177   1      }
+ 178          
+C51 COMPILER V9.54   LD9900MT                                                              01/02/2016 12:08:18 PAGE 4   
+
+ 179          ZALD_Res LD9900MT_DeInit(void)
+ 180          {
+ 181   1      //LD9900MT_PowrDown();
+ 182   1      return LD_OK;
+ 183   1      }
+ 184          
+ 185          ZALD_Res LD9900MT_GetImage(void)
+ 186          {
+ 187   1      return LD9900MT_CMDPorcess(GETIMAGE_CMD,sizeof(GETIMAGE_CMD),(ZA_8U*)0,0);
+ 188   1      }
+ 189          
+ 190          ZALD_Res LD9900MT_GenChar(ZA_8U u8BufferID)
+ 191          {
+ 192   1      ZA_8U u8AttachData[3]={0};
+ 193   1      ZA_16U u16Sum=0;
+ 194   1      u8AttachData[0]=u8BufferID;
+ 195   1      u16Sum=CMD_AddSum(GENCHAR_CMD,sizeof(GENCHAR_CMD))+u8AttachData[0];
+ 196   1      u8AttachData[1]=(ZA_8U)(u16Sum>>8);
+ 197   1      u8AttachData[2]=(ZA_8U)u16Sum;
+ 198   1      return LD9900MT_CMDPorcess(GENCHAR_CMD,sizeof(GENCHAR_CMD),u8AttachData,sizeof(u8AttachData));
+ 199   1      }
+ 200          
+ 201          ZALD_Res LD9900MT_CreateTemplate(void)
+ 202          {
+ 203   1      return LD9900MT_CMDPorcess(CREATET_CMD,sizeof(CREATET_CMD),(ZA_8U*)0,0);
+ 204   1      }
+ 205          
+ 206          ZALD_Res LD9900MT_UpChar(ZA_8U u8BufferID)
+ 207          {
+ 208   1      ZA_8U u8AttachData[3]={0};
+ 209   1      ZA_16U u16Sum=0;
+ 210   1      u8AttachData[0]=u8BufferID;
+ 211   1      u16Sum=CMD_AddSum(GENCHAR_CMD,sizeof(GETIMAGE_CMD))+u8AttachData[0];
+ 212   1      u8AttachData[1]=(ZA_8U)(u16Sum>>8);
+ 213   1      u8AttachData[2]=(ZA_8U)u16Sum;
+ 214   1      return LD9900MT_CMDPorcess(GENCHAR_CMD,sizeof(GENCHAR_CMD),u8AttachData,sizeof(u8AttachData));
+ 215   1      }
+ 216          
+ 217          ZALD_Res LD9900MT_DwonChar(ZA_8U u8BufferID)
+ 218          {
+ 219   1      ZA_8U u8AttachData[3]={0};
+ 220   1      ZA_16U u16Sum=0;
+ 221   1      u8AttachData[0]=u8BufferID;
+ 222   1      u16Sum=CMD_AddSum(DOWNCHAR_CMD,sizeof(DOWNCHAR_CMD))+u8AttachData[0];
+ 223   1      u8AttachData[1]=(ZA_8U)(u16Sum>>8);
+ 224   1      u8AttachData[2]=(ZA_8U)u16Sum;
+ 225   1      return LD9900MT_CMDPorcess(DOWNCHAR_CMD,sizeof(DOWNCHAR_CMD),u8AttachData,sizeof(u8AttachData));
+ 226   1      }
+ 227          
+ 228          ZALD_Res LD9900MT_Store(ZA_8U u8BufferID ,ZA_16U u16PageID)
+ 229          {
+ 230   1      ZA_8U u8AttachData[5]={0};
+ 231   1      ZA_16U u16Sum=0;
+ 232   1      u8AttachData[0]=u8BufferID;
+ 233   1      u8AttachData[1]=(ZA_8U)(u16PageID>>8);
+ 234   1      u8AttachData[2]=(ZA_8U)u16PageID;
+ 235   1      u16Sum=CMD_AddSum(STORE_CMD,sizeof(STORE_CMD))+u8AttachData[0]+u8AttachData[1]+u8AttachData[2];
+ 236   1      u8AttachData[3]=(ZA_8U)(u16Sum>>8);
+ 237   1      u8AttachData[4]=(ZA_8U)u16Sum;
+ 238   1      return LD9900MT_CMDPorcess(STORE_CMD,sizeof(STORE_CMD),u8AttachData,sizeof(u8AttachData));
+ 239   1      }
+ 240          
+C51 COMPILER V9.54   LD9900MT                                                              01/02/2016 12:08:18 PAGE 5   
+
+ 241          ZALD_Res LD9900MT_LoadChar(ZA_8U u8BufferID ,ZA_16U u16PageID){
+ 242   1      ZA_8U u8AttachData[5]={0};
+ 243   1      ZA_16U u16Sum=0;
+ 244   1      u8AttachData[0]=u8BufferID;
+ 245   1      u8AttachData[1]=(ZA_8U)(u16PageID>>8);
+ 246   1      u8AttachData[2]=(ZA_8U)u16PageID;
+ 247   1      u16Sum=CMD_AddSum(LOADCHAR_CMD,sizeof(LOADCHAR_CMD))+u8AttachData[0]+u8AttachData[1]+u8AttachData[2];
+ 248   1      u8AttachData[3]=(ZA_8U)(u16Sum>>8);
+ 249   1      u8AttachData[4]=(ZA_8U)u16Sum;
+ 250   1      return LD9900MT_CMDPorcess(LOADCHAR_CMD,sizeof(LOADCHAR_CMD),u8AttachData,sizeof(u8AttachData));
+ 251   1      }
+ 252          
+ 253          ZALD_Res LD9900MT_DeleteChar(ZA_16U u16PageID ,ZA_16U u16DeleteNum)
+ 254          {
+ 255   1      ZA_8U u8AttachData[6]={0};
+ 256   1      ZA_16U u16Sum=0;
+ 257   1      u8AttachData[0]=(ZA_8U)(u16PageID>>8);
+ 258   1      u8AttachData[1]=(ZA_8U)u16PageID;
+ 259   1      u8AttachData[2]=(ZA_8U)(u16DeleteNum>>8);
+ 260   1      u8AttachData[3]=(ZA_8U)u16DeleteNum;
+ 261   1      u16Sum=CMD_AddSum(DELETECHAR_CMD,sizeof(DELETECHAR_CMD))+u8AttachData[0]+u8AttachData[1]+u8AttachData[2]+u
+             -8AttachData[3];
+ 262   1      u8AttachData[3]=(ZA_8U)(u16Sum>>8);
+ 263   1      u8AttachData[4]=(ZA_8U)u16Sum;
+ 264   1      return LD9900MT_CMDPorcess(DELETECHAR_CMD,sizeof(DELETECHAR_CMD),u8AttachData,sizeof(u8AttachData));
+ 265   1      }
+ 266          
+ 267          ZALD_Res LD9900MT_Empty(void)
+ 268          {
+ 269   1      return LD9900MT_CMDPorcess(EMPTY_CMD,sizeof(EMPTY_CMD),(ZA_8U *)0,0);
+ 270   1      }
+ 271          
+ 272          ZALD_Res LD9900MT_Match(ZA_16U *u16MatchScore)
+ 273          {
+ 274   1      ZALD_Res res=LD_OK;
+ 275   1      res=LD9900MT_CMDPorcess(MATCH_CMD,sizeof(MATCH_CMD),(ZA_8U *)0,0);
+ 276   1      if(LD_OK==res)
+ 277   1      {
+ 278   2      *u16MatchScore=(ZA_16U)(LD9900MT_ReceiveBuff[10]<<8)+LD9900MT_ReceiveBuff[11];
+ 279   2      }
+ 280   1      return res;
+ 281   1      }
+ 282          
+ 283          ZALD_Res LD9900MT_Search(ZA_8U u8BufferID ,ZA_16U u16StartPage ,ZA_16U u16PageNum)
+ 284          {
+ 285   1      ZA_8U u8AttachData[7]={0};
+ 286   1      ZA_16U u16Sum=0;
+ 287   1      u8AttachData[0]=u8BufferID;
+ 288   1      u8AttachData[1]=(ZA_8U)(u16StartPage>>8);
+ 289   1      u8AttachData[2]=(ZA_8U)u16StartPage;
+ 290   1      u8AttachData[3]=(ZA_8U)(u16PageNum>>8);
+ 291   1      u8AttachData[4]=(ZA_8U)u16PageNum;
+ 292   1      u16Sum=CMD_AddSum(SEARCH_CMD,sizeof(SEARCH_CMD))+u8AttachData[0]+u8AttachData[1]+u8AttachData[2]
+ 293   1                                                            +u8AttachData[3]+u8AttachData[4];
+ 294   1      u8AttachData[5]=(ZA_8U)(u16Sum>>8);
+ 295   1      u8AttachData[6]=(ZA_8U)u16Sum;
+ 296   1      return LD9900MT_CMDPorcess(SEARCH_CMD,sizeof(SEARCH_CMD),u8AttachData,sizeof(u8AttachData));
+ 297   1      }
+ 298          
+ 299          ZALD_Res LD9900MT_TemplateNum(ZA_16U *u16TeNum)
+ 300          {
+ 301   1      ZALD_Res res=LD_OK;
+C51 COMPILER V9.54   LD9900MT                                                              01/02/2016 12:08:18 PAGE 6   
+
+ 302   1      res=LD9900MT_CMDPorcess(READTN_CMD,sizeof(READTN_CMD),(ZA_8U *)0,0);
+ 303   1      if(LD_OK==res)
+ 304   1      {
+ 305   2      *u16TeNum=(ZA_16U)(LD9900MT_ReceiveBuff[10]<<8)+LD9900MT_ReceiveBuff[11];
+ 306   2      }
+ 307   1      return res;
+ 308   1      }
+ 309          
+ 310          ZALD_Res LD9900MT_SetSysParm(ZA_8U u8ParmNum, ZA_8U u8Data)
+ 311          {
+ 312   1      ZA_8U u8AttachData[4]={0};
+ 313   1      ZA_16U u16Sum=0;
+ 314   1      u8AttachData[0]=u8ParmNum;
+ 315   1      u8AttachData[1]=u8Data;
+ 316   1      u16Sum=CMD_AddSum(SETSYSP_CMD,sizeof(SETSYSP_CMD))+u8AttachData[0]+u8AttachData[1];
+ 317   1      u8AttachData[3]=(ZA_8U)(u16Sum>>8);
+ 318   1      u8AttachData[4]=(ZA_8U)u16Sum;
+ 319   1      return LD9900MT_CMDPorcess(SETSYSP_CMD,sizeof(SETSYSP_CMD),u8AttachData,sizeof(u8AttachData));
+ 320   1      }
+ 321          
+ 322          ZALD_Res LD9900MT_GetSysParm(ZA_8U *u8SysParm)
+ 323          {
+ 324   1      ZALD_Res res=LD_OK;
+ 325   1      ZA_8U i=0;
+ 326   1      res=LD9900MT_CMDPorcess(GETSYSP_CMD,sizeof(GETSYSP_CMD),(ZA_8U *)0,0);
+ 327   1      if(LD_OK==res)
+ 328   1      {
+ 329   2      for(i=0;i<16;i++)
+ 330   2      {
+ 331   3        u8SysParm[i]=LD9900MT_ReceiveBuff[10+i];
+ 332   3      }
+ 333   2      }
+ 334   1      return res;
+ 335   1      }
+ 336          
+ 337          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1542    ----
+   CONSTANT SIZE    =    188    ----
+   XDATA SIZE       =     33      83
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

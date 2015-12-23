@@ -1,0 +1,221 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        12/28/2015  22:33:28  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+D:\KEIL_V5\C51\BIN\BL51.EXE .\Objects\STARTUP.obj, .\Objects\main.obj TO .\Objects\MallocTest PRINT (.\Listings\MallocTe
+>> st.m51) RAMSIZE (256)
+
+
+MEMORY MODEL: LARGE
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\STARTUP.obj (?C_STARTUP)
+  .\Objects\main.obj (MAIN)
+  D:\KEIL_V5\C51\LIB\C51L.LIB (?C?COPY)
+  D:\KEIL_V5\C51\LIB\C51L.LIB (?C?CLDPTR)
+  D:\KEIL_V5\C51\LIB\C51L.LIB (?C?CSTPTR)
+  D:\KEIL_V5\C51\LIB\C51L.LIB (?C?IILDX)
+  D:\KEIL_V5\C51\LIB\C51L.LIB (REALLOC)
+  D:\KEIL_V5\C51\LIB\C51L.LIB (FREE)
+  D:\KEIL_V5\C51\LIB\C51L.LIB (MALLOC)
+  D:\KEIL_V5\C51\LIB\C51L.LIB (INIT_MEM)
+
+
+LINK MAP OF MODULE:  .\Objects\MallocTest (?C_STARTUP)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            IDATA   0008H     0001H     UNIT         ?STACK
+
+            * * * * * * *  X D A T A   M E M O R Y  * * * * * * *
+            XDATA   0000H     0064H     UNIT         _XDATA_GROUP_
+            XDATA   0064H     0008H     UNIT         ?XD?INIT_MEM
+            XDATA   006CH     0003H     UNIT         ?XD?MAIN
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     013FH     UNIT         ?PR?_FREE?FREE
+            CODE    0142H     0137H     UNIT         ?C?LIB_CODE
+            CODE    0279H     00D1H     UNIT         ?PR?_MALLOC?MALLOC
+            CODE    034AH     00B1H     UNIT         ?PR?_REALLOC?REALLOC
+            CODE    03FBH     0070H     UNIT         ?PR?MAIN?MAIN
+            CODE    046BH     0064H     UNIT         ?CO?MAIN
+            CODE    04CFH     0047H     UNIT         ?PR?TEST?MAIN
+            CODE    0516H     003CH     UNIT         ?PR?_INIT_MEMPOOL?INIT_MEM
+            CODE    0552H     000CH     UNIT         ?C_C51STARTUP
+            CODE    055EH     000BH     UNIT         ?C_INITSEG
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\MallocTest (?C_STARTUP)
+
+
+SEGMENT                              XDATA_GROUP
+  +--> CALLED SEGMENT              START    LENGTH
+--------------------------------------------------
+?C_C51STARTUP                      -----    -----
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/28/2015  22:33:28  PAGE 2
+
+
+  +--> ?PR?MAIN?MAIN
+
+?PR?MAIN?MAIN                      -----    -----
+  +--> ?PR?_REALLOC?REALLOC
+  +--> ?PR?_FREE?FREE
+  +--> ?PR?TEST?MAIN
+
+?PR?_REALLOC?REALLOC               0000H    0008H
+  +--> ?PR?_MALLOC?MALLOC
+  +--> ?PR?_FREE?FREE
+
+?PR?_MALLOC?MALLOC                 0008H    0006H
+
+?PR?_FREE?FREE                     0008H    0006H
+
+?PR?TEST?MAIN                      0000H    0064H
+  +--> ?CO?MAIN
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\MallocTest (?C_STARTUP)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        ?C_STARTUP
+  C:0552H         SEGMENT       ?C_C51STARTUP
+  I:0008H         SEGMENT       ?STACK
+  C:0000H         PUBLIC        ?C_STARTUP
+  D:00E0H         SYMBOL        ACC
+  D:00F0H         SYMBOL        B
+  D:0083H         SYMBOL        DPH
+  D:0082H         SYMBOL        DPL
+  N:0000H         SYMBOL        IBPSTACK
+  N:0100H         SYMBOL        IBPSTACKTOP
+  N:0080H         SYMBOL        IDATALEN
+  C:0555H         SYMBOL        IDATALOOP
+  N:0000H         SYMBOL        PBPSTACK
+  N:0100H         SYMBOL        PBPSTACKTOP
+  N:0000H         SYMBOL        PDATALEN
+  N:0000H         SYMBOL        PDATASTART
+  N:0000H         SYMBOL        PPAGE
+  N:0000H         SYMBOL        PPAGEENABLE
+  D:00A0H         SYMBOL        PPAGE_SFR
+  D:0081H         SYMBOL        SP
+  C:0552H         SYMBOL        STARTUP1
+  N:0000H         SYMBOL        XBPSTACK
+  N:0000H         SYMBOL        XBPSTACKTOP
+  N:0000H         SYMBOL        XDATALEN
+  N:0000H         SYMBOL        XDATASTART
+  C:0000H         LINE#         126
+  C:0552H         LINE#         133
+  C:0554H         LINE#         134
+  C:0555H         LINE#         135
+  C:0556H         LINE#         136
+  C:0558H         LINE#         185
+  C:055BH         LINE#         196
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/28/2015  22:33:28  PAGE 3
+
+
+  -------         ENDMOD        ?C_STARTUP
+
+  -------         MODULE        MAIN
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  D:00C0H         PUBLIC        P4
+  D:00C8H         PUBLIC        P5
+  D:00E8H         PUBLIC        P6
+  D:00F8H         PUBLIC        P7
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  D:00D8H         PUBLIC        CCON
+  C:03FBH         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  C:04CFH         PUBLIC        test
+  C:046BH         SYMBOL        _?ix1000
+  X:006CH         PUBLIC        ptr
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          MAIN
+  -------         DO            
+  D:0006H         SYMBOL        i
+  -------         ENDDO         
+  C:03FBH         LINE#         7
+  C:03FBH         LINE#         9
+  C:041DH         LINE#         10
+  C:0420H         LINE#         11
+  C:0430H         LINE#         12
+  C:043AH         LINE#         13
+  C:0445H         LINE#         14
+  C:0453H         LINE#         15
+  C:045EH         LINE#         16
+  C:0461H         LINE#         17
+  C:046AH         LINE#         18
+  -------         ENDPROC       MAIN
+  -------         PROC          TEST
+  -------         DO            
+  X:0000H         SYMBOL        test
+  D:0006H         SYMBOL        i
+  -------         ENDDO         
+  C:04CFH         LINE#         22
+  C:04CFH         LINE#         24
+  C:04E2H         LINE#         27
+  C:04E5H         LINE#         28
+  C:0500H         LINE#         29
+  C:050AH         LINE#         30
+  C:0515H         LINE#         32
+  -------         ENDPROC       TEST
+  -------         ENDMOD        MAIN
+
+  -------         MODULE        ?C?COPY
+  C:0212H         PUBLIC        ?C?COPY
+  -------         ENDMOD        ?C?COPY
+
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/28/2015  22:33:28  PAGE 4
+
+
+  -------         MODULE        ?C?CLDPTR
+  C:0238H         PUBLIC        ?C?CLDPTR
+  -------         ENDMOD        ?C?CLDPTR
+
+  -------         MODULE        ?C?CSTPTR
+  C:0251H         PUBLIC        ?C?CSTPTR
+  -------         ENDMOD        ?C?CSTPTR
+
+  -------         MODULE        ?C?IILDX
+  C:0263H         PUBLIC        ?C?IILDX
+  -------         ENDMOD        ?C?IILDX
+
+  -------         MODULE        REALLOC
+  C:034AH         PUBLIC        _realloc
+  -------         ENDMOD        REALLOC
+
+  -------         MODULE        FREE
+  C:0003H         PUBLIC        _free
+  -------         ENDMOD        FREE
+
+  -------         MODULE        MALLOC
+  C:0279H         PUBLIC        _malloc
+  -------         ENDMOD        MALLOC
+
+  -------         MODULE        INIT_MEM
+  X:0064H         PUBLIC        __mem_avail__
+  C:0516H         PUBLIC        _init_mempool
+  -------         ENDMOD        INIT_MEM
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_INIT_MEMPOOL?INIT_MEM
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?C_INITSEG
+
+Program Size: data=9.0 xdata=111 code=1385
+LINK/LOCATE RUN COMPLETE.  2 WARNING(S),  0 ERROR(S)

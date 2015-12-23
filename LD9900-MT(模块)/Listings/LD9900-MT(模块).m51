@@ -1,0 +1,966 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        12/27/2015  10:33:13  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+D:\KEIL_V5\C51\BIN\BL51.EXE .\Objects\STARTUP.obj, .\Objects\LD9900MT.obj, .\Objects\main.obj, .\Objects\uart.obj TO .\O
+>> bjects\LD9900-MT(模块) PRINT (.\Listings\LD9900-MT(模块).m51) RAMSIZE (256)
+
+
+MEMORY MODEL: LARGE
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\STARTUP.obj (?C_STARTUP)
+  .\Objects\LD9900MT.obj (LD9900MT)
+  .\Objects\main.obj (MAIN)
+  .\Objects\uart.obj (UART)
+  D:\KEIL_V5\C51\LIB\C51L.LIB (?C_INIT)
+  D:\KEIL_V5\C51\LIB\C51L.LIB (?C?COPY)
+  D:\KEIL_V5\C51\LIB\C51L.LIB (?C?CLDPTR)
+  D:\KEIL_V5\C51\LIB\C51L.LIB (?C?CLDOPTR)
+  D:\KEIL_V5\C51\LIB\C51L.LIB (?C?CSTOPTR)
+  D:\KEIL_V5\C51\LIB\C51L.LIB (?C?ILDIX)
+  D:\KEIL_V5\C51\LIB\C51L.LIB (?C?ILDPTR)
+  D:\KEIL_V5\C51\LIB\C51L.LIB (?C?ISTPTR)
+
+
+LINK MAP OF MODULE:  .\Objects\LD9900-MT(模块) (?C_STARTUP)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            REG     0008H     0008H     ABSOLUTE     "REG BANK 1"
+                    0010H     0010H                  *** GAP ***
+            BIT     0020H.0   0000H.3   UNIT         ?BI?UART
+                    0020H.3   0000H.5                *** GAP ***
+            IDATA   0021H     0001H     UNIT         ?STACK
+
+            * * * * * * *  X D A T A   M E M O R Y  * * * * * * *
+            XDATA   0000H     00B9H     UNIT         ?XD?LD9900MT
+            XDATA   00B9H     0014H     UNIT         _XDATA_GROUP_
+            XDATA   00CDH     000CH     UNIT         ?XD?_LD9900MT_SEARCH?LD9900MT
+            XDATA   00D9H     000AH     UNIT         ?XD?_LD9900MT_DELETECHAR?LD9900MT
+            XDATA   00E3H     0008H     UNIT         ?XD?_LD9900MT_STORE?LD9900MT
+            XDATA   00EBH     0008H     UNIT         ?XD?_LD9900MT_LOADCHAR?LD9900MT
+            XDATA   00F3H     0006H     UNIT         ?XD?_LD9900MT_SETSYSPARM?LD9900MT
+            XDATA   00F9H     0004H     UNIT         ?XD?_LD9900MT_DWONCHAR?LD9900MT
+            XDATA   00FDH     0004H     UNIT         ?XD?_LD9900MT_TEMPLATENUM?LD9900MT
+            XDATA   0101H     0004H     UNIT         ?XD?_LD9900MT_GETSYSPARM?LD9900MT
+            XDATA   0105H     0003H     UNIT         ?XD?_UART1SENDSTRING?UART
+            XDATA   0108H     0003H     UNIT         ?XD?_UART3SENDSTRING?UART
+            XDATA   010BH     0003H     UNIT         ?XD?_UART4SENDSTRING?UART
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     001EH     UNIT         ?PR?_USART_SEND?UART
+                    0021H     0002H                  *** GAP ***
+            CODE    0023H     0003H     ABSOLUTE     
+            CODE    0026H     0061H     UNIT         ?PR?_LD9900MT_GETSYSPARM?LD9900MT
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/27/2015  10:33:13  PAGE 2
+
+
+            CODE    0087H     0004H     UNIT         ?PR?LD9900MT_GETIMAGE?LD9900MT
+            CODE    008BH     0003H     ABSOLUTE     
+            CODE    008EH     0003H     UNIT         ?PR?_LD9900MT_DELAYMS?LD9900MT
+                    0091H     0002H                  *** GAP ***
+            CODE    0093H     0003H     ABSOLUTE     
+            CODE    0096H     01BEH     UNIT         ?C?LIB_CODE
+            CODE    0254H     00EBH     UNIT         ?C_INITSEG
+            CODE    033FH     00A7H     UNIT         ?PR?_LD9900MT_SEARCH?LD9900MT
+            CODE    03E6H     0094H     UNIT         ?PR?_LD9900MT_DELETECHAR?LD9900MT
+            CODE    047AH     008DH     UNIT         ?PR?MAIN?MAIN
+            CODE    0507H     008CH     UNIT         ?C_C51STARTUP
+            CODE    0593H     0083H     UNIT         ?PR?_LD9900MT_STORE?LD9900MT
+            CODE    0616H     0083H     UNIT         ?PR?_LD9900MT_LOADCHAR?LD9900MT
+            CODE    0699H     0073H     UNIT         ?PR?_LD9900MT_SETSYSPARM?LD9900MT
+            CODE    070CH     005FH     UNIT         ?PR?_LD9900MT_CMDPORCESS?LD9900MT
+            CODE    076BH     005DH     UNIT         ?PR?_LD9900MT_DWONCHAR?LD9900MT
+            CODE    07C8H     0059H     UNIT         ?PR?_LD9900MT_GENCHAR?LD9900MT
+            CODE    0821H     0059H     UNIT         ?PR?_LD9900MT_UPCHAR?LD9900MT
+            CODE    087AH     0056H     UNIT         ?PR?_LD9900MT_MATCH?LD9900MT
+            CODE    08D0H     0056H     UNIT         ?PR?_LD9900MT_TEMPLATENUM?LD9900MT
+            CODE    0926H     004FH     UNIT         ?PR?UART4_RECEIVE?LD9900MT
+            CODE    0975H     0048H     UNIT         ?PR?_CMD_ADDSUM?LD9900MT
+            CODE    09BDH     0033H     UNIT         ?PR?_UART1SENDSTRING?UART
+            CODE    09F0H     0033H     UNIT         ?PR?_UART3SENDSTRING?UART
+            CODE    0A23H     0026H     UNIT         ?PR?INIT_UART?UART
+            CODE    0A49H     0024H     UNIT         ?CO?LD9900MT
+            CODE    0A6DH     0024H     UNIT         ?PR?_UART4SENDSTRING?UART
+            CODE    0A91H     001EH     UNIT         ?PR?_DELAY_MS?UART
+            CODE    0AAFH     001BH     UNIT         ?PR?UART3_ISR?UART
+            CODE    0ACAH     001AH     UNIT         ?PR?LD9900MT_EMPTY?LD9900MT
+            CODE    0AE4H     0018H     UNIT         ?PR?_UART4SENDDATA?UART
+            CODE    0AFCH     0015H     UNIT         ?PR?LD9900MT_CREATETEMPLATE?LD9900MT
+            CODE    0B11H     0011H     UNIT         ?PR?UART1_ISR?UART
+            CODE    0B22H     000BH     UNIT         ?PR?LD9900MT_INIT?LD9900MT
+            CODE    0B2DH     000AH     UNIT         ?PR?LD9900MT_RECEIVE?LD9900MT
+            CODE    0B37H     0008H     UNIT         ?PR?_UART1SENDDATA?UART
+            CODE    0B3FH     0008H     UNIT         ?PR?_UART3SENDDATA?UART
+            CODE    0B47H     0006H     UNIT         ?PR?_LD9900MT_SEND?LD9900MT
+            CODE    0B4DH     0003H     UNIT         ?PR?LD9900MT_DEINIT?LD9900MT
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\LD9900-MT(模块) (?C_STARTUP)
+
+
+SEGMENT                                        XDATA_GROUP
+  +--> CALLED SEGMENT                        START    LENGTH
+------------------------------------------------------------
+?C_C51STARTUP                                -----    -----
+  +--> ?PR?MAIN?MAIN
+  +--> ?C_INITSEG
+
+?PR?MAIN?MAIN                                00B9H    0003H
+  +--> ?PR?INIT_UART?UART
+  +--> ?PR?_DELAY_MS?UART
+  +--> ?PR?LD9900MT_INIT?LD9900MT
+  +--> ?PR?LD9900MT_GETIMAGE?LD9900MT
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/27/2015  10:33:13  PAGE 3
+
+
+  +--> ?PR?_LD9900MT_GENCHAR?LD9900MT
+  +--> ?PR?_UART3SENDDATA?UART
+  +--> ?PR?_LD9900MT_UPCHAR?LD9900MT
+  +--> ?PR?LD9900MT_CREATETEMPLATE?LD9900MT
+  +--> ?PR?_LD9900MT_MATCH?LD9900MT
+
+?PR?LD9900MT_INIT?LD9900MT                   -----    -----
+  +--> ?PR?_LD9900MT_DELAYMS?LD9900MT
+  +--> ?PR?_LD9900MT_CMDPORCESS?LD9900MT
+
+?PR?_LD9900MT_DELAYMS?LD9900MT               -----    -----
+  +--> ?PR?_DELAY_MS?UART
+
+?PR?_LD9900MT_CMDPORCESS?LD9900MT            00C0H    000AH
+  +--> ?PR?_LD9900MT_SEND?LD9900MT
+  +--> ?PR?LD9900MT_RECEIVE?LD9900MT
+  +--> ?PR?_DELAY_MS?UART
+
+?PR?_LD9900MT_SEND?LD9900MT                  -----    -----
+  +--> ?PR?_USART_SEND?UART
+
+?PR?_USART_SEND?UART                         00CAH    0003H
+  +--> ?PR?_UART4SENDDATA?UART
+
+?PR?LD9900MT_GETIMAGE?LD9900MT               -----    -----
+  +--> ?PR?_LD9900MT_CMDPORCESS?LD9900MT
+
+?PR?_LD9900MT_GENCHAR?LD9900MT               00BCH    0004H
+  +--> ?CO?LD9900MT
+  +--> ?PR?_CMD_ADDSUM?LD9900MT
+  +--> ?PR?_LD9900MT_CMDPORCESS?LD9900MT
+
+?PR?_CMD_ADDSUM?LD9900MT                     00C0H    0005H
+
+?PR?_LD9900MT_UPCHAR?LD9900MT                00BCH    0004H
+  +--> ?CO?LD9900MT
+  +--> ?PR?_CMD_ADDSUM?LD9900MT
+  +--> ?PR?_LD9900MT_CMDPORCESS?LD9900MT
+
+?PR?LD9900MT_CREATETEMPLATE?LD9900MT         -----    -----
+  +--> ?PR?_LD9900MT_CMDPORCESS?LD9900MT
+
+?PR?_LD9900MT_MATCH?LD9900MT                 00BCH    0004H
+  +--> ?PR?_LD9900MT_CMDPORCESS?LD9900MT
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\LD9900-MT(模块) (?C_STARTUP)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        ?C_STARTUP
+  C:0507H         SEGMENT       ?C_C51STARTUP
+  I:0021H         SEGMENT       ?STACK
+  C:0000H         PUBLIC        ?C_STARTUP
+  D:00E0H         SYMBOL        ACC
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/27/2015  10:33:13  PAGE 4
+
+
+  D:00F0H         SYMBOL        B
+  D:0083H         SYMBOL        DPH
+  D:0082H         SYMBOL        DPL
+  N:0000H         SYMBOL        IBPSTACK
+  N:0100H         SYMBOL        IBPSTACKTOP
+  N:0080H         SYMBOL        IDATALEN
+  C:050AH         SYMBOL        IDATALOOP
+  N:0000H         SYMBOL        PBPSTACK
+  N:0100H         SYMBOL        PBPSTACKTOP
+  N:0000H         SYMBOL        PDATALEN
+  N:0000H         SYMBOL        PDATASTART
+  N:0000H         SYMBOL        PPAGE
+  N:0000H         SYMBOL        PPAGEENABLE
+  D:00A0H         SYMBOL        PPAGE_SFR
+  D:0081H         SYMBOL        SP
+  C:0507H         SYMBOL        STARTUP1
+  N:0000H         SYMBOL        XBPSTACK
+  N:0000H         SYMBOL        XBPSTACKTOP
+  N:0000H         SYMBOL        XDATALEN
+  N:0000H         SYMBOL        XDATASTART
+  C:0000H         LINE#         126
+  C:0507H         LINE#         133
+  C:0509H         LINE#         134
+  C:050AH         LINE#         135
+  C:050BH         LINE#         136
+  C:050DH         LINE#         185
+  C:0510H         LINE#         196
+  -------         ENDMOD        ?C_STARTUP
+
+  -------         MODULE        LD9900MT
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  C:0AFCH         PUBLIC        LD9900MT_CreateTemplate
+  D:0090H         PUBLIC        P1
+  C:076BH         PUBLIC        _LD9900MT_DwonChar
+  D:00A0H         PUBLIC        P2
+  C:07C8H         PUBLIC        _LD9900MT_GenChar
+  D:00B0H         PUBLIC        P3
+  D:00C0H         PUBLIC        P4
+  D:00C8H         PUBLIC        P5
+  B:00A8H.7       PUBLIC        EA
+  D:00E8H         PUBLIC        P6
+  D:00F8H         PUBLIC        P7
+  X:0000H         PUBLIC        DELETECHAR_CMD
+  D:00A8H         PUBLIC        IE
+  X:000AH         PUBLIC        DOWNCHAR_CMD
+  D:00B8H         PUBLIC        IP
+  C:0926H         PUBLIC        UART4_Receive
+  C:008EH         PUBLIC        _LD9900MT_DelayMs
+  C:0722H         SYMBOL        _LD9900MT_CMDPorcess
+  X:0014H         PUBLIC        MATCH_CMD
+  D:00D8H         PUBLIC        CCON
+  C:0B4DH         PUBLIC        LD9900MT_DeInit
+  C:0821H         PUBLIC        _LD9900MT_UpChar
+  C:0B2DH         PUBLIC        LD9900MT_Receive
+  X:0020H         PUBLIC        GENCHAR_CMD
+  X:002AH         PUBLIC        LD9900MT_ReceiveBuff
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/27/2015  10:33:13  PAGE 5
+
+
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  C:03E6H         PUBLIC        _LD9900MT_DeleteChar
+  X:004AH         PUBLIC        CREATET_CMD
+  C:033FH         PUBLIC        _LD9900MT_Search
+  C:0A49H         SYMBOL        _?ix1000
+  C:0A4CH         SYMBOL        _?ix1001
+  X:0056H         PUBLIC        STORE_CMD
+  C:0A4FH         SYMBOL        _?ix1002
+  C:0A52H         SYMBOL        _?ix1003
+  X:0060H         PUBLIC        EMPTY_CMD
+  C:0A57H         SYMBOL        _?ix1004
+  C:0A5CH         SYMBOL        _?ix1005
+  C:0A62H         SYMBOL        _?ix1006
+  B:00A8H.1       PUBLIC        ET0
+  C:0A69H         SYMBOL        _?ix1007
+  C:087AH         PUBLIC        _LD9900MT_Match
+  C:08D0H         PUBLIC        _LD9900MT_TemplateNum
+  C:0026H         PUBLIC        _LD9900MT_GetSysParm
+  X:006CH         PUBLIC        u8RevcLen
+  D:0085H         PUBLIC        S4BUF
+  X:006DH         PUBLIC        GETSYSP_CMD
+  C:0699H         PUBLIC        _LD9900MT_SetSysParm
+  D:0084H         PUBLIC        S4CON
+  C:0616H         PUBLIC        _LD9900MT_LoadChar
+  X:0079H         PUBLIC        SEARCH_CMD
+  C:0087H         PUBLIC        LD9900MT_GetImage
+  C:0B47H         PUBLIC        _LD9900MT_Send
+  X:0083H         PUBLIC        SETSYSP_CMD
+  X:008DH         PUBLIC        READTN_CMD
+  C:0979H         SYMBOL        _CMD_AddSum
+  X:0099H         PUBLIC        LOADCHAR_CMD
+  C:0593H         PUBLIC        _LD9900MT_Store
+  C:0ACAH         PUBLIC        LD9900MT_Empty
+  X:00A3H         PUBLIC        UPCHAR_CMD
+  D:00D0H         PUBLIC        PSW
+  X:00ADH         PUBLIC        GETIMAGE_CMD
+  C:0B22H         PUBLIC        LD9900MT_Init
+  -------         PROC          _LD9900MT_DELAYMS
+  D:0006H         SYMBOL        u16Count
+  C:008EH         LINE#         23
+  C:008EH         LINE#         24
+  C:008EH         LINE#         25
+  -------         ENDPROC       _LD9900MT_DELAYMS
+  -------         PROC          UART4_RECEIVE
+  -------         DO            
+  D:000FH         SYMBOL        dat
+  -------         ENDDO         
+  C:0926H         LINE#         39
+  C:0931H         LINE#         42
+  C:0933H         LINE#         43
+  C:0938H         LINE#         44
+  C:0938H         LINE#         45
+  C:093AH         LINE#         46
+  C:0944H         LINE#         47
+  C:0944H         LINE#         48
+  C:0950H         LINE#         49
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/27/2015  10:33:13  PAGE 6
+
+
+  C:0956H         LINE#         50
+  C:0958H         LINE#         53
+  C:0958H         LINE#         54
+  C:095DH         LINE#         55
+  C:095DH         LINE#         56
+  C:0960H         LINE#         57
+  C:0960H         LINE#         59
+  C:0965H         LINE#         60
+  C:0965H         LINE#         61
+  C:0968H         LINE#         62
+  C:096AH         LINE#         63
+  C:096AH         LINE#         65
+  C:096CH         LINE#         66
+  -------         ENDPROC       UART4_RECEIVE
+  -------         PROC          LD9900MT_RECEIVE
+  -------         DO            
+  D:0007H         SYMBOL        len
+  -------         ENDDO         
+  C:0B2DH         LINE#         68
+  C:0B2DH         LINE#         69
+  C:0B2DH         LINE#         70
+  C:0B2DH         LINE#         83
+  C:0B32H         LINE#         84
+  C:0B34H         LINE#         85
+  C:0B36H         LINE#         86
+  C:0B36H         LINE#         87
+  -------         ENDPROC       LD9900MT_RECEIVE
+  -------         PROC          _LD9900MT_SEND
+  D:0001H         SYMBOL        u8Data
+  D:0005H         SYMBOL        len
+  C:0B47H         LINE#         88
+  C:0B47H         LINE#         89
+  C:0B47H         LINE#         90
+  C:0B4AH         LINE#         91
+  C:0B4CH         LINE#         92
+  -------         ENDPROC       _LD9900MT_SEND
+  -------         PROC          L?0045
+  -------         ENDPROC       L?0045
+  -------         PROC          _CMD_ADDSUM
+  X:00C0H         SYMBOL        u8CmdData
+  D:0005H         SYMBOL        len
+  -------         DO            
+  D:0007H         SYMBOL        i
+  X:00C3H         SYMBOL        res
+  -------         ENDDO         
+  C:0979H         LINE#         98
+  C:0984H         LINE#         99
+  C:0984H         LINE#         100
+  C:0985H         LINE#         101
+  C:0989H         LINE#         102
+  C:0990H         LINE#         103
+  C:0990H         LINE#         104
+  C:09B1H         LINE#         105
+  C:09B4H         LINE#         106
+  C:09BCH         LINE#         107
+  -------         ENDPROC       _CMD_ADDSUM
+  C:071DH         SYMBOL        L?0044
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/27/2015  10:33:13  PAGE 7
+
+
+  -------         PROC          L?0043
+  -------         ENDPROC       L?0043
+  C:071DH         SYMBOL        L?0044
+  -------         PROC          _LD9900MT_CMDPORCESS
+  D:0001H         SYMBOL        u8CMD
+  D:0004H         SYMBOL        u16CMDLen
+  X:00C5H         SYMBOL        u8AttachData
+  X:00C8H         SYMBOL        u16ADLen
+  -------         DO            
+  D:0007H         SYMBOL        i
+  -------         ENDDO         
+  C:0722H         LINE#         111
+  C:0722H         LINE#         112
+  C:0722H         LINE#         113
+  C:0722H         LINE#         114
+  C:0722H         LINE#         115
+  C:0722H         LINE#         116
+  C:072CH         LINE#         117
+  C:072EH         LINE#         118
+  C:0731H         LINE#         120
+  C:073CH         LINE#         121
+  C:073CH         LINE#         122
+  C:074CH         LINE#         123
+  C:074CH         LINE#         124
+  C:074FH         LINE#         125
+  C:0756H         LINE#         126
+  C:0762H         LINE#         127
+  C:0762H         LINE#         128
+  C:0768H         LINE#         129
+  C:0768H         LINE#         131
+  C:0768H         LINE#         132
+  C:076AH         LINE#         133
+  C:076AH         LINE#         134
+  -------         ENDPROC       _LD9900MT_CMDPORCESS
+  -------         PROC          LD9900MT_INIT
+  C:0B22H         LINE#         137
+  C:0B22H         LINE#         138
+  C:0B22H         LINE#         140
+  C:0B29H         LINE#         142
+  C:0B2CH         LINE#         143
+  -------         ENDPROC       LD9900MT_INIT
+  -------         PROC          LD9900MT_DEINIT
+  C:0B4DH         LINE#         145
+  C:0B4DH         LINE#         146
+  C:0B4DH         LINE#         148
+  C:0B4FH         LINE#         149
+  -------         ENDPROC       LD9900MT_DEINIT
+  -------         PROC          LD9900MT_GETIMAGE
+  C:0087H         LINE#         151
+  C:0087H         LINE#         152
+  C:0087H         LINE#         153
+  C:008AH         LINE#         154
+  -------         ENDPROC       LD9900MT_GETIMAGE
+  -------         PROC          _LD9900MT_GENCHAR
+  X:00BCH         SYMBOL        u8BufferID
+  -------         DO            
+  X:00BDH         SYMBOL        u8AttachData
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/27/2015  10:33:13  PAGE 8
+
+
+  D:0004H         SYMBOL        u16Sum
+  -------         ENDDO         
+  C:07C8H         LINE#         156
+  C:07CDH         LINE#         157
+  C:07CDH         LINE#         158
+  C:07E0H         LINE#         159
+  C:07E2H         LINE#         160
+  C:07E8H         LINE#         161
+  C:07F7H         LINE#         162
+  C:07F9H         LINE#         163
+  C:07FEH         LINE#         164
+  C:0820H         LINE#         165
+  -------         ENDPROC       _LD9900MT_GENCHAR
+  -------         PROC          LD9900MT_CREATETEMPLATE
+  C:0AFCH         LINE#         167
+  C:0AFCH         LINE#         168
+  C:0AFCH         LINE#         169
+  C:0B10H         LINE#         170
+  -------         ENDPROC       LD9900MT_CREATETEMPLATE
+  -------         PROC          _LD9900MT_UPCHAR
+  X:00BCH         SYMBOL        u8BufferID
+  -------         DO            
+  X:00BDH         SYMBOL        u8AttachData
+  D:0004H         SYMBOL        u16Sum
+  -------         ENDDO         
+  C:0821H         LINE#         172
+  C:0826H         LINE#         173
+  C:0826H         LINE#         174
+  C:0839H         LINE#         175
+  C:083BH         LINE#         176
+  C:0841H         LINE#         177
+  C:0850H         LINE#         178
+  C:0852H         LINE#         179
+  C:0857H         LINE#         180
+  C:0879H         LINE#         181
+  -------         ENDPROC       _LD9900MT_UPCHAR
+  -------         PROC          _LD9900MT_DWONCHAR
+  X:00F9H         SYMBOL        u8BufferID
+  -------         DO            
+  X:00FAH         SYMBOL        u8AttachData
+  D:0004H         SYMBOL        u16Sum
+  -------         ENDDO         
+  C:076BH         LINE#         183
+  C:0770H         LINE#         184
+  C:0770H         LINE#         185
+  C:0783H         LINE#         186
+  C:0785H         LINE#         187
+  C:078BH         LINE#         188
+  C:079EH         LINE#         189
+  C:07A0H         LINE#         190
+  C:07A5H         LINE#         191
+  C:07C7H         LINE#         192
+  -------         ENDPROC       _LD9900MT_DWONCHAR
+  -------         PROC          _LD9900MT_STORE
+  X:00E3H         SYMBOL        u8BufferID
+  X:00E4H         SYMBOL        u16PageID
+  -------         DO            
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/27/2015  10:33:13  PAGE 9
+
+
+  X:00E6H         SYMBOL        u8AttachData
+  D:0004H         SYMBOL        u16Sum
+  -------         ENDDO         
+  C:0593H         LINE#         194
+  C:059EH         LINE#         195
+  C:059EH         LINE#         196
+  C:05B1H         LINE#         197
+  C:05B1H         LINE#         198
+  C:05B9H         LINE#         199
+  C:05C6H         LINE#         200
+  C:05C9H         LINE#         201
+  C:05ECH         LINE#         202
+  C:05EEH         LINE#         203
+  C:05F3H         LINE#         204
+  C:0615H         LINE#         205
+  -------         ENDPROC       _LD9900MT_STORE
+  -------         PROC          _LD9900MT_LOADCHAR
+  X:00EBH         SYMBOL        u8BufferID
+  X:00ECH         SYMBOL        u16PageID
+  -------         DO            
+  X:00EEH         SYMBOL        u8AttachData
+  D:0004H         SYMBOL        u16Sum
+  -------         ENDDO         
+  C:0616H         LINE#         207
+  C:0621H         LINE#         208
+  C:0634H         LINE#         209
+  C:0634H         LINE#         210
+  C:063CH         LINE#         211
+  C:0649H         LINE#         212
+  C:064CH         LINE#         213
+  C:066FH         LINE#         214
+  C:0671H         LINE#         215
+  C:0676H         LINE#         216
+  C:0698H         LINE#         217
+  -------         ENDPROC       _LD9900MT_LOADCHAR
+  -------         PROC          _LD9900MT_DELETECHAR
+  X:00D9H         SYMBOL        u16PageID
+  X:00DBH         SYMBOL        u16DeleteNum
+  -------         DO            
+  X:00DDH         SYMBOL        u8AttachData
+  D:0004H         SYMBOL        u16Sum
+  -------         ENDDO         
+  C:03E6H         LINE#         219
+  C:03F4H         LINE#         220
+  C:03F4H         LINE#         221
+  C:0407H         LINE#         222
+  C:0407H         LINE#         223
+  C:0414H         LINE#         224
+  C:0417H         LINE#         225
+  C:0424H         LINE#         226
+  C:0427H         LINE#         227
+  C:0451H         LINE#         228
+  C:0452H         LINE#         229
+  C:0457H         LINE#         230
+  C:0479H         LINE#         231
+  -------         ENDPROC       _LD9900MT_DELETECHAR
+  -------         PROC          LD9900MT_EMPTY
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/27/2015  10:33:13  PAGE 10
+
+
+  C:0ACAH         LINE#         233
+  C:0ACAH         LINE#         234
+  C:0ACAH         LINE#         235
+  C:0AE3H         LINE#         236
+  -------         ENDPROC       LD9900MT_EMPTY
+  -------         PROC          _LD9900MT_MATCH
+  X:00BCH         SYMBOL        u16MatchScore
+  -------         DO            
+  X:00BFH         SYMBOL        res
+  -------         ENDDO         
+  C:087AH         LINE#         238
+  C:0885H         LINE#         239
+  C:0885H         LINE#         240
+  C:0888H         LINE#         241
+  C:08A9H         LINE#         242
+  C:08ABH         LINE#         243
+  C:08ABH         LINE#         244
+  C:08CAH         LINE#         245
+  C:08CAH         LINE#         246
+  C:08CFH         LINE#         247
+  -------         ENDPROC       _LD9900MT_MATCH
+  -------         PROC          _LD9900MT_SEARCH
+  X:00CDH         SYMBOL        u8BufferID
+  X:00CEH         SYMBOL        u16StartPage
+  X:00D0H         SYMBOL        u16PageNum
+  -------         DO            
+  X:00D2H         SYMBOL        u8AttachData
+  D:0004H         SYMBOL        u16Sum
+  -------         ENDDO         
+  C:033FH         LINE#         249
+  C:0350H         LINE#         250
+  C:0350H         LINE#         251
+  C:0363H         LINE#         252
+  C:0363H         LINE#         253
+  C:036BH         LINE#         254
+  C:0378H         LINE#         255
+  C:037BH         LINE#         256
+  C:0388H         LINE#         257
+  C:038BH         LINE#         258
+  C:03BCH         LINE#         260
+  C:03BEH         LINE#         261
+  C:03C3H         LINE#         262
+  C:03E5H         LINE#         263
+  -------         ENDPROC       _LD9900MT_SEARCH
+  -------         PROC          _LD9900MT_TEMPLATENUM
+  X:00FDH         SYMBOL        u16TeNum
+  -------         DO            
+  X:0100H         SYMBOL        res
+  -------         ENDDO         
+  C:08D0H         LINE#         265
+  C:08DBH         LINE#         266
+  C:08DBH         LINE#         267
+  C:08DEH         LINE#         268
+  C:08FFH         LINE#         269
+  C:0901H         LINE#         270
+  C:0901H         LINE#         271
+  C:0920H         LINE#         272
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/27/2015  10:33:13  PAGE 11
+
+
+  C:0920H         LINE#         273
+  C:0925H         LINE#         274
+  -------         ENDPROC       _LD9900MT_TEMPLATENUM
+  -------         PROC          _LD9900MT_SETSYSPARM
+  X:00F3H         SYMBOL        u8ParmNum
+  X:00F4H         SYMBOL        u8Data
+  -------         DO            
+  X:00F5H         SYMBOL        u8AttachData
+  D:0004H         SYMBOL        u16Sum
+  -------         ENDDO         
+  C:0699H         LINE#         276
+  C:06A1H         LINE#         277
+  C:06A1H         LINE#         278
+  C:06B4H         LINE#         279
+  C:06B6H         LINE#         280
+  C:06BEH         LINE#         281
+  C:06C6H         LINE#         282
+  C:06E0H         LINE#         283
+  C:06E4H         LINE#         284
+  C:06E9H         LINE#         285
+  C:070BH         LINE#         286
+  -------         ENDPROC       _LD9900MT_SETSYSPARM
+  -------         PROC          _LD9900MT_GETSYSPARM
+  X:0101H         SYMBOL        u8SysParm
+  -------         DO            
+  D:0007H         SYMBOL        res
+  X:0104H         SYMBOL        i
+  -------         ENDDO         
+  C:0026H         LINE#         288
+  C:0031H         LINE#         289
+  C:0031H         LINE#         290
+  C:0033H         LINE#         291
+  C:0035H         LINE#         292
+  C:0051H         LINE#         293
+  C:0054H         LINE#         294
+  C:0054H         LINE#         295
+  C:0058H         LINE#         296
+  C:0058H         LINE#         297
+  C:007CH         LINE#         298
+  C:0086H         LINE#         299
+  C:0086H         LINE#         300
+  C:0086H         LINE#         301
+  -------         ENDPROC       _LD9900MT_GETSYSPARM
+  -------         ENDMOD        LD9900MT
+
+  -------         MODULE        MAIN
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  D:00C0H         PUBLIC        P4
+  D:00C8H         PUBLIC        P5
+  D:00E8H         PUBLIC        P6
+  D:00F8H         PUBLIC        P7
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/27/2015  10:33:13  PAGE 12
+
+
+  D:00D8H         PUBLIC        CCON
+  C:047AH         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          MAIN
+  -------         DO            
+  X:00B9H         SYMBOL        u16MatchScore
+  -------         ENDDO         
+  C:047AH         LINE#         7
+  C:047AH         LINE#         8
+  C:047AH         LINE#         10
+  C:047DH         LINE#         11
+  C:0484H         LINE#         12
+  C:0487H         LINE#         14
+  C:0487H         LINE#         15
+  C:0487H         LINE#         16
+  C:048DH         LINE#         18
+  C:0493H         LINE#         19
+  C:049AH         LINE#         20
+  C:049CH         LINE#         21
+  C:04A4H         LINE#         22
+  C:04ACH         LINE#         25
+  C:04B2H         LINE#         28
+  C:04B8H         LINE#         29
+  C:04BFH         LINE#         30
+  C:04C1H         LINE#         31
+  C:04C9H         LINE#         33
+  C:04CFH         LINE#         38
+  C:04E0H         LINE#         39
+  C:04F2H         LINE#         40
+  C:0505H         LINE#         49
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        MAIN
+
+  -------         MODULE        UART
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  D:00C0H         PUBLIC        P4
+  D:00C8H         PUBLIC        P5
+  B:00A8H.7       PUBLIC        EA
+  D:00E8H         PUBLIC        P6
+  D:00F8H         PUBLIC        P7
+  D:00A2H         PUBLIC        P_SW1
+  D:00BAH         PUBLIC        P_SW2
+  D:00A8H         PUBLIC        IE
+  B:0020H.0       PUBLIC        Uart1busy
+  B:0020H.1       PUBLIC        Uart3busy
+  B:00A8H.4       PUBLIC        ES
+  B:0020H.2       PUBLIC        Uart4busy
+  D:00B8H         PUBLIC        IP
+  B:0098H.0       PUBLIC        RI
+  B:0098H.1       PUBLIC        TI
+  C:0B11H         PUBLIC        Uart1_ISR
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/27/2015  10:33:13  PAGE 13
+
+
+  C:0AAFH         PUBLIC        Uart3_ISR
+  D:00D8H         PUBLIC        CCON
+  D:0099H         PUBLIC        SBUF
+  C:0A91H         PUBLIC        _Delay_ms
+  D:0098H         PUBLIC        SCON
+  C:0A23H         PUBLIC        init_Uart
+  D:0088H         PUBLIC        TCON
+  D:00AFH         PUBLIC        IE2
+  D:008EH         PUBLIC        AUXR
+  D:00E0H         PUBLIC        ACC
+  D:00D6H         PUBLIC        T2H
+  D:00D7H         PUBLIC        T2L
+  C:09BDH         PUBLIC        _Uart1SendString
+  C:0B37H         PUBLIC        _Uart1SendData
+  C:09F0H         PUBLIC        _Uart3SendString
+  C:0A6DH         PUBLIC        _Uart4SendString
+  C:0B3FH         PUBLIC        _Uart3SendData
+  C:0AF3H         PUBLIC        _Uart4SendData
+  D:00ADH         PUBLIC        S3BUF
+  D:0085H         PUBLIC        S4BUF
+  D:00ACH         PUBLIC        S3CON
+  D:0084H         PUBLIC        S4CON
+  D:00D0H         PUBLIC        PSW
+  C:0003H         PUBLIC        _USART_Send
+  -------         PROC          INIT_UART
+  C:0A23H         LINE#         13
+  C:0A23H         LINE#         14
+  C:0A23H         LINE#         15
+  C:0A26H         LINE#         16
+  C:0A28H         LINE#         17
+  C:0A2AH         LINE#         18
+  C:0A2CH         LINE#         19
+  C:0A2FH         LINE#         20
+  C:0A32H         LINE#         21
+  C:0A35H         LINE#         22
+  C:0A38H         LINE#         23
+  C:0A3BH         LINE#         24
+  C:0A3EH         LINE#         25
+  C:0A41H         LINE#         26
+  C:0A43H         LINE#         27
+  C:0A46H         LINE#         28
+  C:0A48H         LINE#         29
+  -------         ENDPROC       INIT_UART
+  -------         PROC          UART1_ISR
+  C:0B11H         LINE#         35
+  C:0B11H         LINE#         37
+  C:0B13H         LINE#         38
+  C:0B16H         LINE#         39
+  C:0B16H         LINE#         40
+  C:0B18H         LINE#         41
+  C:0B18H         LINE#         42
+  C:0B1BH         LINE#         43
+  C:0B1BH         LINE#         44
+  C:0B1DH         LINE#         45
+  C:0B1FH         LINE#         46
+  C:0B1FH         LINE#         47
+  C:0B21H         LINE#         48
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/27/2015  10:33:13  PAGE 14
+
+
+  -------         ENDPROC       UART1_ISR
+  -------         PROC          UART3_ISR
+  C:0AAFH         LINE#         55
+  C:0AB1H         LINE#         57
+  C:0AB3H         LINE#         58
+  C:0AB8H         LINE#         59
+  C:0AB8H         LINE#         60
+  C:0ABBH         LINE#         61
+  C:0ABBH         LINE#         62
+  C:0AC0H         LINE#         63
+  C:0AC0H         LINE#         64
+  C:0AC3H         LINE#         65
+  C:0AC5H         LINE#         66
+  C:0AC5H         LINE#         67
+  C:0AC7H         LINE#         68
+  -------         ENDPROC       UART3_ISR
+  -------         PROC          _UART1SENDDATA
+  D:0007H         SYMBOL        dat
+  C:0B37H         LINE#         101
+  C:0B37H         LINE#         102
+  C:0B37H         LINE#         103
+  C:0B3AH         LINE#         104
+  C:0B3CH         LINE#         105
+  C:0B3EH         LINE#         106
+  -------         ENDPROC       _UART1SENDDATA
+  -------         PROC          _UART1SENDSTRING
+  X:0105H         SYMBOL        s
+  C:09BDH         LINE#         111
+  C:09C8H         LINE#         112
+  C:09C8H         LINE#         113
+  C:09D8H         LINE#         114
+  C:09D8H         LINE#         115
+  C:09EDH         LINE#         116
+  C:09EFH         LINE#         117
+  -------         ENDPROC       _UART1SENDSTRING
+  -------         PROC          _UART3SENDDATA
+  D:0007H         SYMBOL        dat
+  C:0B3FH         LINE#         122
+  C:0B3FH         LINE#         123
+  C:0B3FH         LINE#         124
+  C:0B42H         LINE#         125
+  C:0B44H         LINE#         126
+  C:0B46H         LINE#         127
+  -------         ENDPROC       _UART3SENDDATA
+  -------         PROC          _UART3SENDSTRING
+  X:0108H         SYMBOL        s
+  C:09F0H         LINE#         133
+  C:09FBH         LINE#         134
+  C:09FBH         LINE#         135
+  C:0A0BH         LINE#         136
+  C:0A0BH         LINE#         137
+  C:0A20H         LINE#         138
+  C:0A22H         LINE#         139
+  -------         ENDPROC       _UART3SENDSTRING
+  -------         PROC          L?0038
+  -------         ENDPROC       L?0038
+  -------         PROC          _UART4SENDDATA
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/27/2015  10:33:13  PAGE 15
+
+
+  D:0007H         SYMBOL        Udat
+  C:0AF3H         LINE#         147
+  C:0AF3H         LINE#         148
+  C:0AF3H         LINE#         149
+  C:0AF6H         LINE#         150
+  C:0AF7H         LINE#         151
+  C:0AF9H         LINE#         152
+  C:0AFBH         LINE#         153
+  -------         ENDPROC       _UART4SENDDATA
+  -------         PROC          _UART4SENDSTRING
+  X:010BH         SYMBOL        s
+  C:0A6DH         LINE#         156
+  C:0A78H         LINE#         157
+  C:0A78H         LINE#         158
+  C:0A88H         LINE#         159
+  C:0A88H         LINE#         160
+  C:0A8EH         LINE#         161
+  C:0A90H         LINE#         162
+  -------         ENDPROC       _UART4SENDSTRING
+  -------         PROC          _USART_SEND
+  X:00CAH         SYMBOL        dat
+  D:0005H         SYMBOL        len
+  -------         DO            
+  D:0006H         SYMBOL        i
+  -------         ENDDO         
+  C:0003H         LINE#         165
+  C:000EH         LINE#         167
+  C:0015H         LINE#         168
+  C:0015H         LINE#         169
+  C:001DH         LINE#         170
+  C:0020H         LINE#         172
+  -------         ENDPROC       _USART_SEND
+  -------         PROC          _DELAY_MS
+  D:0006H         SYMBOL        ms
+  -------         DO            
+  D:0004H         SYMBOL        i
+  -------         ENDDO         
+  C:0A91H         LINE#         181
+  C:0A91H         LINE#         182
+  C:0A91H         LINE#         184
+  C:0A9BH         LINE#         185
+  C:0A9BH         LINE#         186
+  C:0AAEH         LINE#         187
+  C:0AAEH         LINE#         188
+  -------         ENDPROC       _DELAY_MS
+  -------         ENDMOD        UART
+
+  -------         MODULE        ?C?COPY
+  C:0166H         PUBLIC        ?C?COPY
+  -------         ENDMOD        ?C?COPY
+
+  -------         MODULE        ?C?CLDPTR
+  C:018CH         PUBLIC        ?C?CLDPTR
+  -------         ENDMOD        ?C?CLDPTR
+
+  -------         MODULE        ?C?CLDOPTR
+  C:01A5H         PUBLIC        ?C?CLDOPTR
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/27/2015  10:33:13  PAGE 16
+
+
+  -------         ENDMOD        ?C?CLDOPTR
+
+  -------         MODULE        ?C?CSTOPTR
+  C:01D2H         PUBLIC        ?C?CSTOPTR
+  -------         ENDMOD        ?C?CSTOPTR
+
+  -------         MODULE        ?C?ILDIX
+  C:01F4H         PUBLIC        ?C?ILDIX
+  -------         ENDMOD        ?C?ILDIX
+
+  -------         MODULE        ?C?ILDPTR
+  C:020AH         PUBLIC        ?C?ILDPTR
+  -------         ENDMOD        ?C?ILDPTR
+
+  -------         MODULE        ?C?ISTPTR
+  C:0235H         PUBLIC        ?C?ISTPTR
+  -------         ENDMOD        ?C?ISTPTR
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?LD9900MT_DEINIT?LD9900MT
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_LD9900MT_DWONCHAR?LD9900MT
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_LD9900MT_STORE?LD9900MT
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_LD9900MT_LOADCHAR?LD9900MT
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_LD9900MT_DELETECHAR?LD9900MT
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?LD9900MT_EMPTY?LD9900MT
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_LD9900MT_SEARCH?LD9900MT
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_LD9900MT_TEMPLATENUM?LD9900MT
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_LD9900MT_SETSYSPARM?LD9900MT
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_LD9900MT_GETSYSPARM?LD9900MT
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_UART1SENDSTRING?UART
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_UART3SENDSTRING?UART
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_UART4SENDSTRING?UART
+
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/27/2015  10:33:13  PAGE 17
+
+
+Program Size: data=17.3 xdata=270 code=2892
+LINK/LOCATE RUN COMPLETE.  13 WARNING(S),  0 ERROR(S)

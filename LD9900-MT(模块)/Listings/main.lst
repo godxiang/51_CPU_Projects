@@ -1,0 +1,79 @@
+C51 COMPILER V9.54   MAIN                                                                  12/27/2015 10:33:13 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE main.c LARGE OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listing
+                    -s\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include"main.h"
+   2          #include "LD9900MT.h"
+   3          
+   4          
+   5          
+   6          
+   7          void main(void)
+   8          {
+   9   1        ZA_16U *u16MatchScore;
+  10   1        init_Uart();  
+  11   1        Delay_ms(1000);
+  12   1        if(LD9900MT_Init() == 0x00){
+  13   2          //Uart3SendString("Init Seccess!\n");
+  14   2        }
+  15   1      while(1){
+  16   2        Delay_ms(1000);
+  17   2        //Uart3SendString("First!");
+  18   2        while(LD9900MT_GetImage() != 0x00){                       //获取指纹图像成功
+  19   3            Delay_ms(200);
+  20   3        }
+  21   2          Uart3SendData(LD9900MT_GenChar(0x01));                  //生成模板储存在 CharBuffer 1       
+  22   2          Uart3SendData(LD9900MT_UpChar(0x01));
+  23   2        //Uart3SendData(LD9900MT_Store(0x01,0x0001));
+  24   2        //Uart3SendData(LD9900MT_LoadChar(0x01,0x0001));
+  25   2        Delay_ms(1000);
+  26   2        //Uart3SendString("First!");
+  27   2        
+  28   2        while(LD9900MT_GetImage() != 0x00){                       //获取指纹图像成功
+  29   3            Delay_ms(200);
+  30   3        }
+  31   2          Uart3SendData(LD9900MT_GenChar(0x02));                  //生成模板储存在 CharBuffer 1       
+  32   2      
+  33   2        Uart3SendData(LD9900MT_CreateTemplate());
+  34   2        
+  35   2        
+  36   2        //Uart3SendData(LD9900MT_Store(0x02,0x0002));
+  37   2        //Uart3SendData(LD9900MT_LoadChar(0x02,0x0001));
+  38   2        Uart3SendData(LD9900MT_Match(u16MatchScore));
+  39   2        Uart3SendData((ZA_8U)*u16MatchScore);
+  40   2        Uart3SendData(((ZA_8U)*u16MatchScore<<8));
+  41   2      
+  42   2      
+  43   2        //Uart3SendString("Second!");
+  44   2      //  if(LD9900MT_GetImage() == 0x00){                        //获取指纹图像成功
+  45   2      //      Delay_ms(200);
+  46   2      //    Uart3SendData(LD9900MT_GenChar(0x02));                  //生成模板储存在 CharBuffer 2       
+  47   2      //  }
+  48   2        //Uart3SendData(LD9900MT_CreateTemplate());               //生成模板
+  49   2      }
+  50   1        //Uart1SendString("test!\n");
+  51   1        //Uart3SendString("test!\n"); 
+  52   1        //Uart4SendString("test!\n");
+  53   1      }
+
+C51 COMPILER V9.54   MAIN                                                                  12/27/2015 10:33:13 PAGE 2   
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    141    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       3
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,487 @@
+C51 COMPILER V9.54   IDCARD                                                                01/02/2016 12:08:18 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE IDCARD
+OBJECT MODULE PLACED IN .\Objects\idcard.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE idcard.c LARGE OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listi
+                    -ngs\idcard.lst) TABS(2) OBJECT(.\Objects\idcard.obj)
+
+line level    source
+
+   1          #include "uart.h"
+   2          #include "w25q64.h"
+   3          #include "LD9900MT.h"
+   4          
+   5          
+   6          #define Uint unsigned int
+   7          #define Ulongint unsigned long int
+   8          #define Uchar unsigned char
+   9          
+  10          #define Hex2Int(x)    ( (x/10)*10+(x%10) )        //Ê®Áù½øÖÆ×ª»»³ÉÊ®½øÖÆ
+  11          unsigned char const code FIND_CARD[10]={0xaa, 0xaa, 0xaa, 0x96, 0x69, 0x00, 0x03, 0x20, 0x01, 0x22};
+  12          unsigned char const code SELECT_CARD[10]={0xaa, 0xaa, 0xaa, 0x96, 0x69, 0x00, 0x03, 0x20, 0x02, 0x21};
+  13          unsigned char const code READ_CARD[10]={0xaa, 0xaa, 0xaa, 0x96, 0x69, 0x00, 0x03, 0x30, 0x01, 0x32};
+  14          ZA_8CONST HEARTBREAK[]={0x55, 0xaa, 0x00, 0x01, 0x03, 0x71, 0x00, 0x01, 0x00, 0x01, 0x01, 0x00, 0x01, 0x00
+             -, 0x00, 0x16};
+  15          unsigned char Id_Number[20]={0x00};           //±£´æÉí·ÝÖ¤ºÅÂë
+  16          unsigned int length = 0;                //±£´æÊý¾Ý³¤¶È
+  17          unsigned char  spi_re_data_buffer[20];  //flsh¶ÁÈ¡»º´æÊý×é
+  18          unsigned long int FLASH_Address;        //Ð´ÈëFlashµÄµØÖ·
+  19          unsigned char IdData[20]={0x00};
+  20          unsigned char Re_length;                        //±£´æÉÏÎ»»úÊý¾Ý³¤¶È
+  21          unsigned char LocalHostNum[10]={0x00, 0x00, 0x00, 0x00, 0x03, 0x71, 0x00, 0x01, 0x00, 0x01};
+  22          unsigned char const code MessageType[][2]={{0x00,0x01}, {0x00,0x02}, {0x00,0x03}, {0x10, 0x01}, {0x10, 0x0
+             -3}, {0xf0, 0x01},
+  23                                                  {0x30,0x01}, {0x31,0x03}, {0x32,0x03},{0x30,0x04}}; 
+  24          //·µ»ØÉÏÎ»»úµÄ³£Á¿Êý¾Ý¶¨ÒåÇø
+  25          ZA_8CONST ID_DL_SUCCESS[]={0x55,0xAA,0x00,0x01,0x03,0x71,0x00,0x01,0x00,0x01,0x01,0x10,0xff,0x01,0x01,0x16
+             -};
+  26          ZA_8CONST ID_DL_FAILURE[]={0x55,0xAA,0x00,0x01,0x03,0x71,0x00,0x01,0x00,0x01,0x01,0x10,0xff,0x00,0x00,0x16
+             -};
+  27          ZA_8CONST FIRST_SUCCESS[]={0x55,0xAA,0x00,0x01,0x03,0x71,0x00,0x01,0x00,0x01,0x01,0x31,0xff,0x01,0x01,0x16
+             -};
+  28          ZA_8CONST SECOND_SUCCESS[]={0x55,0xAA,0x00,0x01,0x03,0x71,0x00,0x01,0x00,0x01,0x01,0x32,0xff,0x01,0x01,0x1
+             -6};
+  29          ZA_8CONST FIRST_FAILURE[]={0x55,0xAA,0x00,0x01,0x03,0x71,0x00,0x01,0x00,0x01,0x01,0x31,0xff,0x00,0x00,0x16
+             -};
+  30          ZA_8CONST SECOND_FAILURE[]={0x55,0xAA,0x00,0x01,0x03,0x71,0x00,0x01,0x00,0x01,0x01,0x32,0xff,0x00,0x00,0x1
+             -6};
+  31          ZA_8CONST LD9900MT_CT_SUCCESS[]={0x55,0xAA,0x00,0x01,0x03,0x71,0x00,0x01,0x00,0x01,0x01,0x3f,0xff,0x01,0x0
+             -1,0x16};              //  Éú³ÉÄ£°å³É¹¦
+  32          ZA_8CONST LD9900MT_CT_FAILURE[]={0x55,0xAA,0x00,0x01,0x03,0x71,0x00,0x01,0x00,0x01,0x01,0x3f,0xff,0x00,0x0
+             -0,0x16};                //  Éú³ÉÄ£°åÊ§°Ü
+  33          unsigned char MessType = 0xff;
+  34          bit Uart3HaveData;
+  35          bit OpCart_FindCart_State = 0;          //Ñ°¿¨×´Ì¬Î» 1³É¹¦ 0Ê§°Ü ³õÊ¼»¯Îª0
+  36          bit OpCart_SelectCart_State = 0;        //Ñ¡¿¨×´Ì¬Î» 1³É¹¦ 0Ê§°Ü ³õÊ¼»¯Îª0
+  37          bit OpCart_ReadCart_State = 0;          //¶Á¿¨×´Ì¬Î» 1³É¹¦ 0Ê§°Ü ³õÊ¼»¯Îª0
+  38          unsigned int Search_Data(Uchar *IdDtata,Ulongint StartAddr);
+  39          
+  40          
+  41          /*----------------------------------------
+  42          ´®¿Ú3´¦ÀíÉÏÎ»»úÐÅÏ¢£¨´ÓWIFIÄ£¿é£©º¯Êý
+  43          ----------------------------------------*/
+  44          void UART3_Proccess(void){
+C51 COMPILER V9.54   IDCARD                                                                01/02/2016 12:08:18 PAGE 2   
+
+  45   1      bit Header_State;
+  46   1      unsigned char i,j = 0;
+  47   1      unsigned char CS = 0x00;
+  48   1        if(S3_Re_Buffer[0] == 0x55 && S3_Re_Buffer[1] == 0xaa)
+  49   1          Header_State = 1;
+  50   1        else
+  51   1          Header_State = 0;
+  52   1        if(Header_State == 1){                                                //Í·Ã»ÓÐ³ö´í
+  53   2        Re_length = Hex2Int (S3_Re_Buffer[2])*256 + Hex2Int (S3_Re_Buffer[3]);//»ñµÃdataµÄ³¤¶È£¬ÒÔ±ã¼ÆËãÐ£ÑéÂëCS
+  54   2        for(i=4;i<10;i++){
+  55   3            if(LocalHostNum[i] == S3_Re_Buffer[i])                            //ÅÐ¶ÏÊÇ·ñÊÇ±¾»ú±àºÅ
+  56   3              j++;
+  57   3        }
+  58   2          if(j==6){                                                           //ÊÇ±¾»ú±àºÅ
+  59   3            for (j = 13;j<Re_length + 13;j++){                                //¼ÆËãÐ£ÑéÂëCS
+  60   4              CS+=S3_Re_Buffer[j];
+  61   4            }
+  62   3            if(CS == S3_Re_Buffer[13+Re_length])                              //Ð£ÑéÂëCSÊÇ·ñ³ö´í ²»³ö´íÔò½øÐÐÊý¾Ý½âÎö
+  63   3            {
+  64   4              //Uart3SendString("CS Passed!\n");
+  65   4              //Uart3SendData(CS);
+  66   4              if(S3_Re_Buffer[14+Re_length] == 0x16 && S3_Re_Buffer[15+Re_length] == 0x00){           //¼ì²éÎ²°Í0x16
+  67   5              for(j=0;j<sizeof(MessageType)/2;j++)
+  68   5                  {
+  69   6                  if(MessageType[j][0] == S3_Re_Buffer[11] && MessageType[j][1] == S3_Re_Buffer[12]) //ÕâÀïÈ·¶¨MessTyp
+             -e 
+  70   6                  MessType = j;
+  71   6                }
+  72   5              }
+  73   4              else 
+  74   4                MessType = 0xff;                                                //Èç¹ûÊäÈë¹ý³¤£¬ÌáÊ¾ÊäÈë´íÎó£¬MessTypeÎªÄ¬ÈÏ
+  75   4            }
+  76   3            else
+  77   3              Uart3SendString("CS Error!\n");
+  78   3          }
+  79   2          else
+  80   2            Uart3SendString("not localhost number!\n");
+  81   2        }
+  82   1        Uart3HaveData = 0;                                                      //Êý¾Ý´¦ÀíÍêÖÃ´®¿Ú3Êý¾Ý±ê¼ÇÎª0£¬µÈ´ýÏÂÒ»´ÎÊý¾Ý½øÈë
+  83   1        Re_Cnt = 0;                                                             //¼ÆÊýÆ÷¹éÁã
+  84   1        if(MessType != 0x03){                                                   //´æÉí·ÝÖ¤Êý¾ÝÐèÒªÓÃµ½½ÓÊÕÇøÊý¾Ý
+  85   2          for(i=0;i<100;i++)
+  86   2        S3_Re_Buffer[i] = 0x00;                                                 //½ÓÊÕÈ¡³õÊ¼»¯Îª0x00
+  87   2        }
+  88   1      }
+  89          /***********************************************
+  90          *º¯ÊýÃû³Æ£ºUart4_Process
+  91          *¹¦    ÄÜ£º´®¿ÚÃüÁî´¦Àíº¯Êý
+  92          *Èë¿Ú²ÎÊý£ºÎÞ
+  93          *·µ »Ø Öµ£ºÎÞ 
+  94          *±¸    ×¢£ºÎÞ
+  95          ************************************************/
+  96          void Uart4_Process(void)  
+  97          {
+  98   1      unsigned int i,j;
+  99   1      length = Hex2Int (re_data_buffer[5])*256 + Hex2Int (re_data_buffer[6]);//Ê®Áù½øÖÆ×ª»»Îª10½øÖÆ
+ 100   1      if(length == 4 &&re_data_buffer[9] == 0x80 && re_data_buffer[10] == 0x84){
+ 101   2      OpCart_FindCart_State = 0;
+ 102   2      }
+ 103   1      if(length == 4 &&re_data_buffer[9] == 0x81 && re_data_buffer[10] == 0x85){
+ 104   2      OpCart_SelectCart_State = 0;
+ 105   2      }
+C51 COMPILER V9.54   IDCARD                                                                01/02/2016 12:08:18 PAGE 3   
+
+ 106   1      if(length == 4 &&re_data_buffer[9] == 0x41 && re_data_buffer[10] == 0x45){
+ 107   2      OpCart_ReadCart_State = 0;
+ 108   2      }
+ 109   1      if(length == 8)
+ 110   1        OpCart_FindCart_State = 1;
+ 111   1      if(length == 12)
+ 112   1        OpCart_SelectCart_State = 1;
+ 113   1      if(length == 1288){
+ 114   2        OpCart_ReadCart_State = 1;
+ 115   2        for(j=2,i = 136;j<20,i < 171;i++,j++){                                    //È¡Éí·ÝÖ¤ºÅÂë                                                                      
+ 116   3          Id_Number[j] = re_data_buffer[i];
+ 117   3          i++;                                                                    //¸ôÒ»Î»È¡Ò»Î»
+ 118   3        } 
+ 119   2      }
+ 120   1      Rece_Cnt = 0;                                                               //½ÓÊÕ¼ÆÊýÆ÷¹éÁã
+ 121   1      }
+ 122          
+ 123          /***********************************************
+ 124          *º¯ÊýÃû³Æ£ºSave_IDNum_ToFlash
+ 125          *¹¦    ÄÜ£º½«ÉÏÎ»»ú·¢À´µÄÊý¾ÝÓÐÐòµØ·Å½øFlash´¢´æÆ÷ÖÐ
+ 126          *Èë¿Ú²ÎÊý1£ºData 20Î»£¨2Î»ÐòºÅ  18Î»Éí·ÝÖ¤ºÅ£©
+ 127          *·µ »Ø Öµ£ºÎÞ 
+ 128          *±¸    ×¢£ºÎÞ
+ 129          ************************************************/
+ 130          bit Save_IDNum_ToFlash(void){
+ 131   1      Uchar TotalNumData[2]={0x00, 0x00};     //ÓÃÀ´±£´æÊý¾ÝµÄË÷ÒýºÅ
+ 132   1      Ulongint CurrentAddr;
+ 133   1      Ulongint EndAddr;
+ 134   1      Uint TotalNum;
+ 135   1      
+ 136   1      sFLASH_ReadBuffer(TotalNumData,FLASH_ReadAddress,2);                   //ÉÏµçÎÈ¶¨ÒÔºóÏÈ¶ÁÈ¡FlashÖÐ´¢´æÊý¾ÝµÄ¸öÊý
+ 137   1      TotalNum = Hex2Int (TotalNumData[0])*256 + Hex2Int (TotalNumData[1]); //Ê®Áù½øÖÆ×ª»»Îª10½øÖÆ
+ 138   1      if(TotalNum != 0xffff){
+ 139   2      EndAddr = (unsigned long int)(TotalNum*4096) + 4096;
+ 140   2      }
+ 141   1      else{
+ 142   2      TotalNum = 0;
+ 143   2      EndAddr = 0x00001000;
+ 144   2      }
+ 145   1      
+ 146   1      CurrentAddr = Search_Data(IdData,0x00001000);
+ 147   1      if(CurrentAddr == 0){                                                 //Ã»ÓÐËÑË÷µ½  ÔÚºóÃæ×·¼ÓÐ´Èë
+ 148   2      TotalNum++;
+ 149   2      TotalNumData[0] = (unsigned char)(TotalNum>>8);                       //TotalNumµÄ¸ß8Î»
+ 150   2      TotalNumData[1] = (unsigned char)TotalNum;                            //TotalNumµÄµÍ8Î»
+ 151   2      sFLASH_EraseSector(FLASH_SectorToErase);                              //É¾³ýÒ»¸öÉÈÇø
+ 152   2      sFLASH_WritePage(TotalNumData,FLASH_WriteAddress,2);                  //±£´æÒ»ÏÂÊý¾ÝµÄ¸öÊý  ÒÔ±ãÏÂ´ÎÐ´²Ù×÷×·¼Ó  ÏÂ´
+             -ÎÐ´²Ù×÷ÏÈ¶ÁÈ¡Õâ¸öÊý È»ºó¶¨Î»Ð´µÄµØÖ·
+ 153   2      IdData[0] = TotalNumData[0];
+ 154   2      IdData[1] = TotalNumData[1];
+ 155   2      sFLASH_EraseSector(EndAddr);                                      //É¾³ýÒ»¸öÉÈÇø
+ 156   2      sFLASH_WritePage(IdData,EndAddr,20);
+ 157   2      return 1;
+ 158   2      }
+ 159   1      else
+ 160   1      return 0;                                       
+ 161   1      }
+ 162          
+ 163          unsigned int Search_Data(Uchar *IdData,Ulongint StartAddr){
+ 164   1      Uchar TotalNumData[2]={0x00, 0x00};     //ÓÃÀ´±£´æÊý¾ÝµÄË÷ÒýºÅ
+ 165   1      Uchar i = 2;
+ 166   1      Uchar TempBuffer[20] = {0};
+C51 COMPILER V9.54   IDCARD                                                                01/02/2016 12:08:18 PAGE 4   
+
+ 167   1      unsigned int TotalNum = 0x0000;                 //Êý¾ÝµÄ×Ü¸öÊý
+ 168   1      Ulongint EndAddr;
+ 169   1      Ulongint CurrentAddr;
+ 170   1      
+ 171   1      CurrentAddr = StartAddr;
+ 172   1      sFLASH_ReadBuffer(TotalNumData,FLASH_ReadAddress,2);                   //ÉÏµçÎÈ¶¨ÒÔºóÏÈ¶ÁÈ¡FlashÖÐ´¢´æÊý¾ÝµÄ¸öÊý
+ 173   1      TotalNum = Hex2Int (TotalNumData[0])*256 + Hex2Int (TotalNumData[1]); //Ê®Áù½øÖÆ×ª»»Îª10½øÖÆ
+ 174   1      if(TotalNum != 0xffff){
+ 175   2      EndAddr = (unsigned long int)(TotalNum*4096) + 4096;
+ 176   2      }
+ 177   1      else{
+ 178   2      TotalNum = 0;
+ 179   2      EndAddr = 0x00001000;
+ 180   2      }
+ 181   1      IdData=IdData + 2;
+ 182   1      while (CurrentAddr < EndAddr){
+ 183   2      sFLASH_ReadBuffer(TempBuffer,CurrentAddr,20);                         //ÏÈ¶ÁÈ¡ÔÚ±È½Ï               
+ 184   2      while(TempBuffer[i] == *IdData && i < 20){
+ 185   3      i++;
+ 186   3      IdData++;
+ 187   3      }
+ 188   2      if(i==0x14){                                                          //Êý¾ÝÏàÍ¬
+ 189   3      return CurrentAddr;                                                   //ËÑË÷µ½ÏàÍ¬Êý¾Ý  ·µ»ØÊý¾ÝµÄµ±Ç°µØÖ·
+ 190   3      }
+ 191   2      CurrentAddr+=4096;                                                    //Êý¾Ý²»ÏàÍ¬½«µ±Ç°µØÖ·ºóÒÆ¼ÌÐøËÑË÷
+ 192   2      }
+ 193   1      return 0;
+ 194   1      }
+ 195          
+ 196          /***********************************************
+ 197          *º¯ÊýÃû³Æ£ºCompare_Id_NumberInfo
+ 198          *¹¦    ÄÜ£ºÉí·ÝÖ¤ÐÅÏ¢ÑéÖ¤
+ 199          *Èë¿Ú²ÎÊý£ºÎÞ
+ 200          *·µ »Ø Öµ£ºÎÞ 
+ 201          *±¸    ×¢£ºÎÞ
+ 202          ************************************************/
+ 203          bit Compare_Id_NumberInfo(void){
+ 204   1      unsigned int Cnt,Cnt0,ID;
+ 205   1      ID=sFLASH_ReadID();               //¶ÁÈ¡W25Q64µÄÆ÷¼þIDºÅ                                    
+ 206   1      if(ID!=sFLASH_W25Q64_ID)        //Èç¹ûIDºÅ²»Í¬
+ 207   1      {
+ 208   2      Uart3SendString("ID ERROR!");
+ 209   2      while(1); 
+ 210   2      }
+ 211   1      
+ 212   1      Delay_ms(200);
+ 213   1      //½«¸ÃÒ³µÄÊý¾Ý¶Á
+ 214   1      sFLASH_ReadBuffer(spi_re_data_buffer,FLASH_Address,20);
+ 215   1      //±È½ÏÐ´ÈëºÍ¶ÁÈ¡µÄÊý¾ÝÊÇ·ñÒ»ÖÂ
+ 216   1      for(Cnt0=2,Cnt=2;Cnt<20,Cnt0<20;Cnt++,Cnt0++) 
+ 217   1      {
+ 218   2      //Uart1SendData(spi_re_data_buffer[Cnt]);
+ 219   2      //Èç¹ûÓÐÊý¾Ý²»Í¬
+ 220   2      if(spi_re_data_buffer[Cnt]!=Id_Number[Cnt0])
+ 221   2      {     
+ 222   3      return 0;     
+ 223   3      } 
+ 224   2      } 
+ 225   1      if(Cnt == 0x0014){                              //Êý¾ÝÃ»ÓÐ´í
+ 226   2      return 1;
+ 227   2      }
+ 228   1      return 0;
+C51 COMPILER V9.54   IDCARD                                                                01/02/2016 12:08:18 PAGE 5   
+
+ 229   1      }
+ 230          
+ 231          
+ 232          
+ 233          /***********************************************
+ 234          *º¯ÊýÃû³Æ£ºOp_IdCard
+ 235          *¹¦    ÄÜ£ºÉí·ÝÖ¤Ä£¿é²Ù×÷º¯Êý
+ 236          *Èë¿Ú²ÎÊý£ºÎÞ
+ 237          *·µ »Ø Öµ£ºÎÞ 
+ 238          *±¸    ×¢£ºÎÞ
+ 239          ************************************************/
+ 240          void Op_IdCard(void){
+ 241   1      unsigned int n,Cnt;
+ 242   1      bit flag = 0;
+ 243   1      while(!flag & Uart3HaveData != 1){                                                //²»¶ÏÑ­»·µÈ´ý·Å¿¨
+ 244   2      while(!OpCart_FindCart_State & Uart3HaveData != 1){                           //Ò»Ö±µÈ´ýÑ°¿¨³É¹¦
+ 245   3      for (n=0;n<10;n++){
+ 246   4          Uart4SendData(FIND_CARD[n]);  
+ 247   4        }
+ 248   3            //Uart4_Process();  
+ 249   3        Delay_ms(200);                                          //µÈ´ý½ÓÊÕÊý¾Ý
+ 250   3        Uart4_Process();
+ 251   3      }
+ 252   2      
+ 253   2      Cnt = 0;
+ 254   2      while(OpCart_FindCart_State == 1 & !OpCart_SelectCart_State & Cnt < 10 & Uart3HaveData != 1){             //Ò»Ö±
+             -µÈ´ýÑ¡¿¨³É¹¦,×î¶àÖØÊÔ10´Î ±ÜÃâÑ°¿¨³É¹¦ºóÒÆ³ýÁË¿¨ ¶øµ¼ÖÂËÀÑ­»·
+ 255   3      for (n=0;n<10;n++){
+ 256   4        Uart4SendData(SELECT_CARD[n]);  
+ 257   4      }
+ 258   3          //Uart4_Process();  
+ 259   3      Delay_ms(200);                                            //µÈ´ý½ÓÊÕÊý¾Ý
+ 260   3      Uart4_Process();
+ 261   3      Cnt++;
+ 262   3      }
+ 263   2      
+ 264   2      Cnt = 0;
+ 265   2      while(OpCart_FindCart_State == 1 & OpCart_SelectCart_State == 1 & !OpCart_ReadCart_State & Cnt < 3 & Uart3
+             -HaveData != 1){                       //Ò»Ö±µÈ´ý¶Á¿¨³É¹¦
+ 266   3      for (n=0;n<10;n++){
+ 267   4        Uart4SendData(READ_CARD[n]);  
+ 268   4      } 
+ 269   3      Delay_ms(3000);                                         //µÈ´ý½ÓÊÕÊý¾Ý£¬ÕâÀïÄ£¿é·µ»ØÊý¾ÝÑÓ³Ù¸ßÐèÒªµÈ´ýµÄÊ±¼ä³¤Ò»Ð©¡£
+ 270   3      Uart4_Process();
+ 271   3      FLASH_Address = Search_Data(Id_Number,0x00001000);
+ 272   3      if(Compare_Id_NumberInfo()){                                          //¿ªÊ¼¶Ô±ÈÊý¾Ý
+ 273   4      Uart3SendString("ID Number Verification Pass!Open The Door!\n");
+ 274   4      P43 = 0;                                                            //¿ªÕ¢
+ 275   4      P44 = 0;
+ 276   4      Delay_ms(1000);
+ 277   4      P43 = 1;
+ 278   4      P44 = 1;
+ 279   4      }
+ 280   3      else
+ 281   3      Uart3SendString("ID Number Error!\n");
+ 282   3      Cnt++;
+ 283   3      }
+ 284   2      if(Cnt == 1){
+ 285   3      Uart3SendString("Id Cart Read Success!\n");
+ 286   3      flag = 1;                                               //¶Á¿¨³É¹¦ÖÃ±êÖ¾Î»FlagÎª0
+ 287   3      }
+ 288   2      
+C51 COMPILER V9.54   IDCARD                                                                01/02/2016 12:08:18 PAGE 6   
+
+ 289   2      OpCart_FindCart_State = 0;                            //¶ÁÈ¡Ò»ÕÅ¿¨ºóÖØÐÂ³õÊ¼»¯
+ 290   2      OpCart_SelectCart_State = 0;
+ 291   2      OpCart_ReadCart_State = 0;
+ 292   2      }
+ 293   1      }
+ 294          
+ 295          
+ 296          /***********************************************
+ 297          *º¯ÊýÃû³Æ£ºCommonMessProce
+ 298          *¹¦    ÄÜ£ºÍ¨ÓÃÏûÏ¢´¦Àíº¯Êýº¯Êý
+ 299          *Èë¿Ú²ÎÊý£ºÎÞ
+ 300          *·µ »Ø Öµ£ºÎÞ 
+ 301          *±¸    ×¢£º¸ù¾ÝÏûÏ¢ÀàÐÍMessTypeÖµ×ö³öÏàÓ¦¶¯×÷
+ 302          ************************************************/
+ 303          
+ 304          void CommonMessProce(void){
+ 305   1      
+ 306   1      unsigned char i,j;
+ 307   1      static bit  FirstState = 0;                                                         //µÚÒ»´ÎÖ¸ÎÆ¶Ô±È×´Ì¬Î»
+ 308   1      static bit  SecondState = 0;                                                        //µÚ¶þ´ÎÖ¸ÎÆ¶Ô±È×´Ì¬Î»
+ 309   1      unsigned char cnt = 0;                                                      //ÖØÊÔ´ÎÊý¼ÆÊý
+ 310   1      ZA_16U *u16MatchScore;
+ 311   1      switch (MessType){
+ 312   2        case 0x00 :
+ 313   2          Uart3SendString("Heart packet!\n");
+ 314   2          break;
+ 315   2        case 0x01 :
+ 316   2          Uart3SendString("Realoading!\n");
+ 317   2          break;
+ 318   2        case 0x02 :                                                               //¿ªÕ¢
+ 319   2          Uart3SendString("Open The Door!\n");
+ 320   2          P43 = 0;
+ 321   2          P44 = 0;
+ 322   2          Delay_ms(2000);
+ 323   2          P43 = 1;
+ 324   2          P44 = 1;
+ 325   2          break;
+ 326   2        case 0x03 :                                                           //ÏÂÔØÒµÖ÷Éí·ÝÖ¤ÐÅÏ¢
+ 327   2      for(i=2,j=13;i<20,j<31;i++,j++)
+ 328   2      IdData[i] = S3_Re_Buffer[j];                                            //ÕûÀíÊý¾Ý£¬×¼±¸ÍùFlashÖÐ´æ
+ 329   2      for (i=0;i<100;i++)                                                     //´æÍê½«½ÓÊÕÊý×éÖÃÁã
+ 330   2      S3_Re_Buffer[i] = 0x00;
+ 331   2      if(Save_IDNum_ToFlash())
+ 332   2      USART3_Send(ID_DL_SUCCESS,sizeof(ID_DL_SUCCESS));
+ 333   2      //Uart3SendString("Save Id Number Success!\n");
+ 334   2      else
+ 335   2      USART3_Send(ID_DL_FAILURE,sizeof(ID_DL_FAILURE));
+ 336   2      //Uart3SendString("Id Number already exist!\n");
+ 337   2      break;
+ 338   2      case 0x04 :                                                             //Éí·ÝÐÅÏ¢ÑéÖ¤
+ 339   2      Uart3SendString("Please Scan the ID Cart!\n");
+ 340   2      Op_IdCard();                                                          //Éí·ÝÖ¤ÐÅÏ¢É¨ÃèÂ¼Èë
+ 341   2      break;
+ 342   2        case 0x05 :                                                               //·¢ËÍÐÄÌø°ü
+ 343   2          for(i=0;i<16;i++){
+ 344   3          Uart3SendData(HEARTBREAK[i]);
+ 345   3          }
+ 346   2        case 0x06 :
+ 347   2          Uart3SendString("Ready!\n");
+ 348   2        break;
+ 349   2      case 0x07 :
+ 350   2        //Uart3SendString("Please put your finger to the module!\n");
+C51 COMPILER V9.54   IDCARD                                                                01/02/2016 12:08:18 PAGE 7   
+
+ 351   2                    
+ 352   2        Delay_ms(1000);
+ 353   2        while(LD9900MT_GetImage() != 0x00 & cnt < 10){            //Ò»Ö±µÈ´ý»ñÈ¡Ö¸ÎÆÍ¼Ïñ³É¹¦  ×î¶à³¢ÊÔ10´Î
+ 354   3          //Uart3SendString("First input!\n");
+ 355   3          FirstState = 0;                                         //ÖÃ×´Ì¬Î»Îª0
+ 356   3          cnt++;
+ 357   3          Delay_ms(200);      
+ 358   3        }
+ 359   2        if(cnt < 10){
+ 360   3          FirstState = 1;
+ 361   3          if(LD9900MT_GenChar(0x01) == 0x00)                      //Éú³ÉÌØÕ÷´¢´æÔÚ CharBuffer 1
+ 362   3          //Uart3SendString("First GenChar Success!\n");
+ 363   3          USART3_Send(FIRST_SUCCESS,sizeof(FIRST_SUCCESS));
+ 364   3        }
+ 365   2        else{
+ 366   3          FirstState = 0;
+ 367   3          USART3_Send(FIRST_FAILURE,sizeof(FIRST_FAILURE));
+ 368   3        }
+ 369   2        break;
+ 370   2        
+ 371   2      case 0x08 :
+ 372   2          Delay_ms(1000);
+ 373   2        cnt = 0;                                                  //cntÖØÐÂ³õÊ¼»¯Îª0
+ 374   2        while(LD9900MT_GetImage() != 0x00 & cnt < 10){            //Ò»Ö±µÈ´ý»ñÈ¡Ö¸ÎÆÍ¼Ïñ³É¹¦   ×î¶à³¢ÊÔ10´Î
+ 375   3          //Uart3SendString("Second input!\n");
+ 376   3          SecondState = 0;                                        //ÖÃ×´Ì¬Î»Îª0
+ 377   3          cnt++;
+ 378   3          Delay_ms(200);    
+ 379   3        }
+ 380   2        if(cnt < 10){
+ 381   3          SecondState = 1;
+ 382   3          if(LD9900MT_GenChar(0x02) == 0x00)                  //Éú³ÉÌØÕ÷´¢´æÔÚ CharBuffer 2 
+ 383   3          //Uart3SendString("Second GenChar Success!\n");
+ 384   3          USART3_Send(SECOND_SUCCESS,sizeof(SECOND_SUCCESS));
+ 385   3        }
+ 386   2        else{
+ 387   3          SecondState = 0;
+ 388   3          USART3_Send(SECOND_FAILURE,sizeof(SECOND_FAILURE));
+ 389   3        }
+ 390   2      
+ 391   2          if(FirstState == 1 & SecondState == 1){
+ 392   3          FirstState = 0; 
+ 393   3          SecondState = 0;
+ 394   3          //Uart3SendString("Two all success!\n");
+ 395   3            if(LD9900MT_CreateTemplate() == 0x00){                //Éú³ÉÄ£°å
+ 396   4              //Uart3SendString("Create Template Success!\n");
+ 397   4              if(LD9900MT_Store(0x02,0x0001) == 0x00)             //Éú³ÉÄ£°åºóCharBuffer1ºÍCharBuffer2ÖÐµÄÄÚÈÝÊÇÒ»ÑùµÄ£¬´¢
+             -´æÄ£°åµ½¿âÐòºÅ1
+ 398   4              //Uart3SendString("Store Template Success!\n");
+ 399   4              USART3_Send(LD9900MT_CT_SUCCESS,sizeof(LD9900MT_CT_SUCCESS));
+ 400   4            }
+ 401   3            else
+ 402   3              USART3_Send(LD9900MT_CT_FAILURE,sizeof(LD9900MT_CT_FAILURE));
+ 403   3              //Uart3SendString("Create Template Falure!\n");
+ 404   3        }
+ 405   2          else
+ 406   2            Uart3SendString("Falure!\n");                         //Á½´ÎÈ¡ÊÖÖ¸ÖÐ¼äÓÐÊ§°Ü
+ 407   2        break;
+ 408   2      case 0x09 :
+ 409   2      Uart3SendData(LD9900MT_LoadChar(0x02,0x0001));              //½«Ä£°å´Ó¿âÖÐÄÃ³öÀ´·Åµ½CharBuffer2
+ 410   2      Delay_ms(1000);
+ 411   2      while(LD9900MT_GetImage() != 0x00){                       //µÈ´ý»ñÈ¡Ö¸ÎÆÍ¼Ïñ³É¹¦
+C51 COMPILER V9.54   IDCARD                                                                01/02/2016 12:08:18 PAGE 8   
+
+ 412   3        //Uart3SendString("Please put your finger to the module!\n");
+ 413   3        Delay_ms(200);      
+ 414   3      }
+ 415   2      Uart3SendData(LD9900MT_GenChar(0x01));                  //Éú³ÉÌØÕ÷´¢´æÔÚ CharBuffer1
+ 416   2      Uart3SendString("Now compare data!\n");
+ 417   2      if(LD9900MT_Match(u16MatchScore) == 0x00){            //¿ªÊ¼¶Ô±È
+ 418   3        Uart3SendString("Pass!Open The Door!\n");
+ 419   3            P43 = 0;                                        //¿ªÕ¢
+ 420   3            P44 = 0;
+ 421   3            Delay_ms(2000);
+ 422   3            P43 = 1;
+ 423   3            P44 = 1;
+ 424   3      }
+ 425   2      else
+ 426   2        Uart3SendString("Not Pass!\n");;
+ 427   2        break;
+ 428   2      default :
+ 429   2        //Uart3SendString("Please Input right command!\n")
+ 430   2            ;
+ 431   2      }
+ 432   1      MessType = 0xff;                                                          //MessType ÏûÏ¢´¦ÀíÍêºó£¬»Ö¸´µ½Ä¬ÈÏ×´Ì¬¡£
+ 433   1      }
+ 434          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2607    ----
+   CONSTANT SIZE    =    485    ----
+   XDATA SIZE       =     78      60
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      6       2
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

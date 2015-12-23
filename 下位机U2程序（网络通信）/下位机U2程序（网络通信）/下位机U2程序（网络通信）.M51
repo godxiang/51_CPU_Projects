@@ -1,0 +1,282 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        12/19/2015  21:47:34  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+D:\KEIL_V5\C51\BIN\BL51.EXE STARTUP.obj, 智慧门禁系统设计U2.obj TO 下位机U2程序（网络通信） RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  STARTUP.obj (?C_STARTUP)
+  智慧门禁系统设计U2.obj (________________U2)
+  D:\KEIL_V5\C51\LIB\C51S.LIB (?C?COPY)
+
+
+LINK MAP OF MODULE:  下位机U2程序（网络通信） (?C_STARTUP)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0016H     UNIT         _DATA_GROUP_
+            DATA    001EH     0001H     UNIT         ?DT?READ_BYTE?________________U2
+            IDATA   001FH     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     00F6H     UNIT         ?C?LIB_CODE
+            CODE    00F9H     0073H     UNIT         ?PR?_SENT_BYTE?________________U2
+            CODE    016CH     0061H     UNIT         ?PR?TRANSMIT_INIT?________________U2
+            CODE    01CDH     004CH     UNIT         ?PR?MAIN?________________U2
+            CODE    0219H     002BH     UNIT         ?PR?READ_BYTE?________________U2
+            CODE    0244H     0014H     UNIT         ?CO?________________U2
+            CODE    0258H     000EH     UNIT         ?PR?DELAY_10US?________________U2
+            CODE    0266H     000CH     UNIT         ?C_C51STARTUP
+
+
+
+OVERLAY MAP OF MODULE:   下位机U2程序（网络通信） (?C_STARTUP)
+
+
+SEGMENT                                        DATA_GROUP 
+  +--> CALLED SEGMENT                        START    LENGTH
+------------------------------------------------------------
+?C_C51STARTUP                                -----    -----
+  +--> ?PR?MAIN?________________U2
+
+?PR?MAIN?________________U2                  0008H    0016H
+  +--> ?CO?________________U2
+  +--> ?PR?TRANSMIT_INIT?________________U2
+
+
+
+SYMBOL TABLE OF MODULE:  下位机U2程序（网络通信） (?C_STARTUP)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/19/2015  21:47:34  PAGE 2
+
+
+  -------         MODULE        ?C_STARTUP
+  C:0266H         SEGMENT       ?C_C51STARTUP
+  I:001FH         SEGMENT       ?STACK
+  C:0000H         PUBLIC        ?C_STARTUP
+  D:00E0H         SYMBOL        ACC
+  D:00F0H         SYMBOL        B
+  D:0083H         SYMBOL        DPH
+  D:0082H         SYMBOL        DPL
+  N:0000H         SYMBOL        IBPSTACK
+  N:0100H         SYMBOL        IBPSTACKTOP
+  N:0080H         SYMBOL        IDATALEN
+  C:0269H         SYMBOL        IDATALOOP
+  N:0000H         SYMBOL        PBPSTACK
+  N:0100H         SYMBOL        PBPSTACKTOP
+  N:0000H         SYMBOL        PDATALEN
+  N:0000H         SYMBOL        PDATASTART
+  N:0000H         SYMBOL        PPAGE
+  N:0000H         SYMBOL        PPAGEENABLE
+  D:00A0H         SYMBOL        PPAGE_SFR
+  D:0081H         SYMBOL        SP
+  C:0266H         SYMBOL        STARTUP1
+  N:0000H         SYMBOL        XBPSTACK
+  N:0000H         SYMBOL        XBPSTACKTOP
+  N:0000H         SYMBOL        XDATALEN
+  N:0000H         SYMBOL        XDATASTART
+  C:0000H         LINE#         126
+  C:0266H         LINE#         133
+  C:0268H         LINE#         134
+  C:0269H         LINE#         135
+  C:026AH         LINE#         136
+  C:026CH         LINE#         185
+  C:026FH         LINE#         196
+  -------         ENDMOD        ?C_STARTUP
+
+  -------         MODULE        ________________U2
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0092H         PUBLIC        P1M0
+  D:0096H         PUBLIC        P2M0
+  D:0091H         PUBLIC        P1M1
+  D:0080H         PUBLIC        P0
+  D:0095H         PUBLIC        P2M1
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  B:00A0H.0       PUBLIC        Transmit_DATA0
+  D:00C0H         PUBLIC        P4
+  B:00A0H.1       PUBLIC        Transmit_DATA1
+  D:00C8H         PUBLIC        P5
+  B:00A0H.2       PUBLIC        Transmit_DATA2
+  B:00A8H.7       PUBLIC        EA
+  D:00E8H         PUBLIC        P6
+  B:00A0H.3       PUBLIC        Transmit_DATA3
+  D:00F8H         PUBLIC        P7
+  D:00A2H         PUBLIC        P_SW1
+  D:00BAH         PUBLIC        P_SW2
+  D:00A8H         PUBLIC        IE
+  C:00F9H         PUBLIC        _Sent_Byte
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/19/2015  21:47:34  PAGE 3
+
+
+  B:00A8H.4       PUBLIC        ES
+  D:00B8H         PUBLIC        IP
+  D:00D8H         PUBLIC        CCON
+  C:01CDH         PUBLIC        main
+  B:00A0H.5       PUBLIC        Transmit_U1REQ
+  B:00A0H.4       PUBLIC        Transmit_U1STB
+  B:00A0H.7       PUBLIC        Transmit_U2REQ
+  B:00A0H.6       PUBLIC        Transmit_U2STB
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  D:0088H         PUBLIC        TCON
+  B:0090H.3       PUBLIC        Transmit_U2BusACK
+  C:0258H         PUBLIC        delay_10us
+  D:00AFH         PUBLIC        IE2
+  D:008EH         PUBLIC        AUXR
+  C:0244H         SYMBOL        _?ix1000
+  D:00E0H         PUBLIC        ACC
+  D:008DH         PUBLIC        TH1
+  D:00D6H         PUBLIC        T2H
+  D:008BH         PUBLIC        TL1
+  D:00D7H         PUBLIC        T2L
+  B:0088H.6       PUBLIC        TR1
+  D:009AH         PUBLIC        S2CON
+  C:016CH         PUBLIC        Transmit_init
+  C:0219H         PUBLIC        Read_Byte
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          TRANSMIT_INIT
+  C:016CH         LINE#         34
+  C:016CH         LINE#         35
+  C:016FH         LINE#         36
+  C:0175H         LINE#         37
+  C:0178H         LINE#         38
+  C:017EH         LINE#         39
+  C:0181H         LINE#         40
+  C:0187H         LINE#         41
+  C:018AH         LINE#         42
+  C:0190H         LINE#         43
+  C:0193H         LINE#         44
+  C:0199H         LINE#         45
+  C:019CH         LINE#         46
+  C:01A2H         LINE#         47
+  C:01A5H         LINE#         48
+  C:01ABH         LINE#         49
+  C:01AEH         LINE#         50
+  C:01B4H         LINE#         51
+  C:01BAH         LINE#         52
+  C:01C0H         LINE#         53
+  C:01C6H         LINE#         54
+  C:01CCH         LINE#         55
+  -------         ENDPROC       TRANSMIT_INIT
+  -------         PROC          _SENT_BYTE
+  D:0007H         SYMBOL        Data0
+  C:00F9H         LINE#         83
+  C:00F9H         LINE#         84
+  C:00F9H         LINE#         85
+  C:00FFH         LINE#         86
+  C:00FFH         LINE#         87
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/19/2015  21:47:34  PAGE 4
+
+
+  C:0101H         LINE#         88
+  C:0104H         LINE#         89
+  C:010CH         LINE#         90
+  C:0116H         LINE#         91
+  C:0122H         LINE#         92
+  C:012CH         LINE#         93
+  C:0138H         LINE#         94
+  C:0142H         LINE#         95
+  C:014EH         LINE#         96
+  C:0158H         LINE#         97
+  C:015AH         LINE#         98
+  C:015DH         LINE#         99
+  C:015FH         LINE#         100
+  C:0161H         LINE#         101
+  C:0164H         LINE#         102
+  C:0164H         LINE#         104
+  C:0169H         LINE#         105
+  C:0169H         LINE#         107
+  C:016BH         LINE#         108
+  -------         ENDPROC       _SENT_BYTE
+  -------         PROC          READ_BYTE
+  -------         DO            
+  D:001EH         SYMBOL        Read_Byte_data
+  -------         ENDDO         
+  C:0219H         LINE#         115
+  C:0219H         LINE#         116
+  C:021CH         LINE#         117
+  C:021FH         LINE#         118
+  C:0225H         LINE#         119
+  C:022BH         LINE#         120
+  C:0231H         LINE#         121
+  C:0237H         LINE#         122
+  C:0239H         LINE#         123
+  C:023CH         LINE#         124
+  C:023EH         LINE#         125
+  C:0241H         LINE#         126
+  C:0241H         LINE#         128
+  C:0243H         LINE#         129
+  -------         ENDPROC       READ_BYTE
+  -------         PROC          DELAY_10US
+  -------         DO            
+  D:0007H         SYMBOL        i
+  D:0006H         SYMBOL        j
+  -------         ENDDO         
+  C:0258H         LINE#         130
+  C:0258H         LINE#         131
+  C:025AH         LINE#         132
+  C:025AH         LINE#         133
+  C:025CH         LINE#         134
+  C:0265H         LINE#         135
+  -------         ENDPROC       DELAY_10US
+  -------         PROC          MAIN
+  -------         DO            
+  D:0008H         SYMBOL        uart_data
+  D:001CH         SYMBOL        i
+  -------         ENDDO         
+  C:01CDH         LINE#         136
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/19/2015  21:47:34  PAGE 5
+
+
+  C:01CDH         LINE#         137
+  C:01E5H         LINE#         138
+  C:01E8H         LINE#         140
+  C:01EAH         LINE#         141
+  C:01ECH         LINE#         142
+  C:01EEH         LINE#         143
+  C:01F1H         LINE#         144
+  C:01F4H         LINE#         145
+  C:01F7H         LINE#         146
+  C:01FAH         LINE#         147
+  C:01FDH         LINE#         148
+  C:01FFH         LINE#         149
+  C:0201H         LINE#         150
+  C:0203H         LINE#         152
+  C:0206H         LINE#         153
+  C:0209H         LINE#         154
+  C:020CH         LINE#         155
+  C:020FH         LINE#         156
+  C:0212H         LINE#         157
+  C:0215H         LINE#         158
+  C:0217H         LINE#         159
+  C:0217H         LINE#         160
+  C:0217H         LINE#         168
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        ________________U2
+
+  -------         MODULE        ?C?COPY
+  C:00D3H         PUBLIC        ?C?COPY
+  -------         ENDMOD        ?C?COPY
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_SENT_BYTE?________________U2
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?READ_BYTE?________________U2
+
+Program Size: data=32.0 xdata=0 code=626
+LINK/LOCATE RUN COMPLETE.  2 WARNING(S),  0 ERROR(S)

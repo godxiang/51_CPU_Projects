@@ -1,0 +1,275 @@
+C51 COMPILER V9.54   W25Q64                                                                01/02/2016 12:08:18 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE W25Q64
+OBJECT MODULE PLACED IN .\Objects\w25q64.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE w25q64.c LARGE OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listi
+                    -ngs\w25q64.lst) TABS(2) OBJECT(.\Objects\w25q64.obj)
+
+line level    source
+
+   1          #include "W25Q64.h"
+   2          
+   3          
+   4          /***********************************************
+   5          函数名称：Delay_us
+   6          功    能：STC 1T单片机1us延时程序
+   7          入口参数：us:延时的微秒数
+   8          返 回 值：无  
+   9          备    注：外部时钟11.0592MHz
+  10          ************************************************/
+  11          void Delay1us()   //@22.1184MHz
+  12          {
+  13   1        unsigned char i;
+  14   1        i = 3;
+  15   1        while (--i);
+  16   1      }
+  17          
+  18          /***********************************************
+  19          函数名称：sFLASH_SendByte
+  20          功    能：向W25Q64 FLASH发送一个字节数据。
+  21          入口参数：dat:发送的数据
+  22          返 回 值：无  
+  23          备    注：无
+  24          ************************************************/
+  25          void sFLASH_SendByte(unsigned char dat)
+  26          {
+  27   1        unsigned char i;         //定义计数器
+  28   1        //送出数据
+  29   1        for(i=0;i<8;i++)      
+  30   1          {       
+  31   2          W25Q64_WCK_Clr();
+  32   2          //先发送高字节
+  33   2          if( (dat&0x80)==0x80 )
+  34   2          {
+  35   3              W25Q64_WDI_Set(); 
+  36   3          }
+  37   2          else
+  38   2          {
+  39   3            W25Q64_WDI_Clr();
+  40   3          }
+  41   2           Delay1us();  
+  42   2          W25Q64_WCK_Set();
+  43   2          //数据左移
+  44   2            dat<<=1;                
+  45   2        }  
+  46   1      }
+  47          /***********************************************
+  48          函数名称：sFLASH_ReadByte
+  49          功    能：从W25Q64 FLASH读取一个字节数据。
+  50          入口参数：无
+  51          返 回 值：unsigned char：读出的数据。 
+  52          备    注：无
+  53          ************************************************/
+  54          unsigned char sFLASH_ReadByte(void)
+C51 COMPILER V9.54   W25Q64                                                                01/02/2016 12:08:18 PAGE 2   
+
+  55          {
+  56   1        unsigned char i;
+  57   1          unsigned char dat = 0;
+  58   1        W25Q64_WDO_Set();
+  59   1        W25Q64_WCK_Clr();
+  60   1          for (i=0; i<8; i++)             //8位计数器
+  61   1          {
+  62   2          W25Q64_WCK_Set();           //时钟线拉高
+  63   2           Delay1us();
+  64   2              dat <<= 1;                  //数据右移一位
+  65   2          if (WDO) 
+  66   2          {
+  67   3            dat |= 0x01;            //读取数据
+  68   3          }
+  69   2          W25Q64_WCK_Clr();           //时钟线拉低
+  70   2        }
+  71   1          return dat;
+  72   1      }
+  73          /***********************************************
+  74          函数名称：sFLASH_WriteEnable
+  75          功    能：写使能。
+  76          入口参数：无
+  77          返 回 值：无  
+  78          备    注：无
+  79          ************************************************/
+  80          void sFLASH_WriteEnable(void)
+  81          {
+  82   1          //使能芯片 
+  83   1          W25Q64_WCS_Clr();
+  84   1      
+  85   1          //发送写使能指令 
+  86   1          sFLASH_SendByte(sFLASH_CMD_WREN);
+  87   1      
+  88   1          //禁止芯片 
+  89   1          W25Q64_WCS_Set();
+  90   1      }
+  91          /***********************************************
+  92          函数名称：sFLASH_WaitForWriteEnd
+  93          功    能：等待写结束
+  94          入口参数：无
+  95          返 回 值：无  
+  96          备    注：无
+  97          ************************************************/
+  98          void sFLASH_WaitForWriteEnd(void)
+  99          {
+ 100   1          unsigned char flashstatus = 0;
+ 101   1      
+ 102   1          //芯片使能 
+ 103   1          W25Q64_WCS_Clr();
+ 104   1      
+ 105   1          //发送读取寄存器指令
+ 106   1          sFLASH_SendByte(sFLASH_CMD_RDSR);
+ 107   1      
+ 108   1          //循环读取忙标记直到忙结束 
+ 109   1          do
+ 110   1          {
+ 111   2            flashstatus = sFLASH_ReadByte();
+ 112   2          }
+ 113   1        //判断忙标记
+ 114   1          while ((flashstatus & sFLASH_WIP_FLAG) == 0x01); 
+ 115   1      
+ 116   1          //芯片禁止 
+C51 COMPILER V9.54   W25Q64                                                                01/02/2016 12:08:18 PAGE 3   
+
+ 117   1          W25Q64_WCS_Set();
+ 118   1      }
+ 119          /***********************************************
+ 120          函数名称：sFLASH_ReadID
+ 121          功    能：从W25Q64 FLASH读取器件ID号。
+ 122          入口参数：无
+ 123          返 回 值：unsigned int：读出的ID。  
+ 124          备    注：无
+ 125          ************************************************/
+ 126          unsigned int sFLASH_ReadID(void)
+ 127          {
+ 128   1          unsigned int Temp = 0; 
+ 129   1        unsigned char Temp0 = 0, Temp1 = 0;
+ 130   1          //使能flash
+ 131   1          W25Q64_WCS_Clr();
+ 132   1          //发送读flash  id号指令
+ 133   1          sFLASH_SendByte(sFLASH_CMD_RDID);
+ 134   1        //发送24位地址 地址为0
+ 135   1        sFLASH_SendByte(0);
+ 136   1        sFLASH_SendByte(0);
+ 137   1        sFLASH_SendByte(0);
+ 138   1          //读取返回的数据
+ 139   1          Temp0 = sFLASH_ReadByte();
+ 140   1          Temp1 = sFLASH_ReadByte();
+ 141   1          //禁止flash
+ 142   1          W25Q64_WCS_Set();
+ 143   1          //组合数据
+ 144   1          Temp = (Temp0 << 8) | Temp1;
+ 145   1          return Temp;
+ 146   1      }
+ 147          /***********************************************
+ 148          函数名称：sFLASH_WritePage
+ 149          功    能：向W25Q64 FLASH写入一页数据。
+ 150          入口参数：pBuffer:存放写入的数据的缓冲区，
+ 151                    WriteAddr：开始写入的地址，
+ 152                NumByteToWrite：写入的字节数
+ 153          返 回 值：无：读出的数据。  
+ 154          备    注：无
+ 155          ************************************************/
+ 156          void sFLASH_WritePage(unsigned char* pBuffer, unsigned long int WriteAddr, unsigned int NumByteToWrite)
+ 157          {
+ 158   1          //芯片写使能，写之前需写使能，否则无法写入 
+ 159   1          sFLASH_WriteEnable();
+ 160   1      
+ 161   1          //芯片使能 
+ 162   1          W25Q64_WCS_Clr();
+ 163   1          //发送写指令 
+ 164   1          sFLASH_SendByte(sFLASH_CMD_PAGEPRO);
+ 165   1          //发送24位地址 
+ 166   1          sFLASH_SendByte((WriteAddr & 0xFF0000) >> 16);
+ 167   1          sFLASH_SendByte((WriteAddr & 0xFF00) >> 8);
+ 168   1          sFLASH_SendByte(WriteAddr & 0xFF);
+ 169   1      
+ 170   1          //循环按字节写入 
+ 171   1          while (NumByteToWrite--)
+ 172   1          {
+ 173   2            sFLASH_SendByte(*pBuffer);
+ 174   2            pBuffer++;
+ 175   2          }
+ 176   1      
+ 177   1          //芯片禁止 
+ 178   1          W25Q64_WCS_Set();
+C51 COMPILER V9.54   W25Q64                                                                01/02/2016 12:08:18 PAGE 4   
+
+ 179   1      
+ 180   1          //等待写完成
+ 181   1          sFLASH_WaitForWriteEnd();
+ 182   1      }
+ 183          /***********************************************
+ 184          函数名称：sFLASH_ReadBuffer
+ 185          功    能：从W25Q64 FLASH读取一串数据。
+ 186          入口参数：pBuffer:接收该字符串的缓冲区
+ 187                    ReadAddr：开始读的地址
+ 188                NumByteToRead：读的字节数
+ 189          返 回 值：无  
+ 190          备    注：无
+ 191          ************************************************/
+ 192          void sFLASH_ReadBuffer(unsigned char * pBuffer, unsigned long int ReadAddr, unsigned int NumByteToRead)
+ 193          {
+ 194   1          //芯片使能 
+ 195   1          W25Q64_WCS_Clr();
+ 196   1      
+ 197   1          //发送读命令
+ 198   1          sFLASH_SendByte(sFLASH_CMD_READ);
+ 199   1      
+ 200   1          //发送24位地址 
+ 201   1          sFLASH_SendByte((ReadAddr & 0xFF0000) >> 16);
+ 202   1          sFLASH_SendByte((ReadAddr& 0xFF00) >> 8);
+ 203   1          sFLASH_SendByte(ReadAddr & 0xFF);
+ 204   1      
+ 205   1        //循环按字节读取
+ 206   1          while (NumByteToRead--) 
+ 207   1          {
+ 208   2            *pBuffer = sFLASH_ReadByte();
+ 209   2            pBuffer++;
+ 210   2          }
+ 211   1      
+ 212   1          //芯片禁止 
+ 213   1          W25Q64_WCS_Set();
+ 214   1      }
+ 215          /***********************************************
+ 216          函数名称：sFLASH_EraseSector
+ 217          功    能：擦除W25Q64 FLASH的一个扇区。
+ 218          入口参数：无
+ 219          返 回 值：unsigned char：读出的数据。 
+ 220          备    注：无
+ 221          ************************************************/
+ 222          void sFLASH_EraseSector(unsigned long int SectorAddr)
+ 223          {
+ 224   1          //芯片写使能
+ 225   1          sFLASH_WriteEnable();
+ 226   1      
+ 227   1          //芯片使能 
+ 228   1          W25Q64_WCS_Clr();
+ 229   1          //发送扇区擦除指令
+ 230   1          sFLASH_SendByte(sFLASH_CMD_SE);
+ 231   1          //发送24位地址
+ 232   1          sFLASH_SendByte((SectorAddr & 0xFF0000) >> 16);
+ 233   1          sFLASH_SendByte((SectorAddr & 0xFF00) >> 8);
+ 234   1          sFLASH_SendByte(SectorAddr & 0xFF);
+ 235   1          //芯片禁止 
+ 236   1          W25Q64_WCS_Set();
+ 237   1      
+ 238   1          //等待写完成
+ 239   1          sFLASH_WaitForWriteEnd();
+ 240   1      }
+C51 COMPILER V9.54   W25Q64                                                                01/02/2016 12:08:18 PAGE 5   
+
+ 241          
+ 242          
+ 243          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    405    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----      22
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

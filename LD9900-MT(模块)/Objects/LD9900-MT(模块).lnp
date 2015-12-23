@@ -1,0 +1,6 @@
+".\Objects\STARTUP.obj",
+".\Objects\LD9900MT.obj",
+".\Objects\main.obj",
+".\Objects\uart.obj" 
+TO ".\Objects\LD9900-MT(Ä£¿é)" 
+PRINT(".\Listings\LD9900-MT(Ä£¿é).m51") RAMSIZE(256) 
